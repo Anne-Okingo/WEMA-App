@@ -1,0 +1,15 @@
+{
+  "name": "wema-app",
+  "version": "1.0.0",
+  "description": "WEMA is an offline-first maternal mental health screening app for hospital waiting rooms. Patients complete an EPDS assessment on a tablet, get instant results, and are automatically routed to care.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
