@@ -358,15 +358,20 @@ WRITE_AUDIT_LOG
 
 ### 3.1 Frontend
 
-| Layer | Technology | Notes |
-|---|---|---|
-| Framework | React + Vite + TypeScript | Fast dev server, strict typing across patient app and portal |
-| Offline layer | Workbox Service Worker | Pre-caches app shell, screening tools, video/audio assets |
-| Local storage | IndexedDB via Dexie.js | Structured local DB: patients, assessments, outbox, config cache |
-| HTTP client | Axios | Interceptors for auth, retry, and offline queuing |
-| i18n | react-i18next | English, Kiswahili, Luo |
-| Unit/component testing | Vitest + React Testing Library | |
-| E2E testing | Playwright | Offline simulation, multi-tab sync scenarios |
+| Layer                      | Technology                            | Notes                                                                                                                                                                                                                                    |
+| -------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework                  | React + Vite + TypeScript             | Shared frontend foundation for the patient tablet application and psychologist portal, with strict typing across workflow, API, and domain models.                                                                                       |
+| Patient application        | React Web App             | Browser-based screening application supporting EPDS and General Public workflows. Designed for offline-first operation using local storage and background synchronization.                                                                                                              |
+| Offline layer              | Workbox Service Worker                | Pre-caches the application shell, questionnaire definitions, translations, and essential assets. Large audio and video files should be cached on demand rather than bundled into the initial installation.                               |
+| Local storage              | IndexedDB via Dexie.js                | Stores cached Wonder patients, WEMA patients, screening sessions, assessment answers, scores, routing decisions, queue entries, assignments, resource snapshots, audit events, and local outbox records.                                 |
+| Local outbox               | Custom Dexie-based outbox service     | Reliably stores locally created operations and synchronizes them with the backend when connectivity returns. Includes idempotency keys, retry counts, status tracking, and failure handling.                                             |
+| HTTP client                | Axios                                 | Handles API communication, authentication headers, timeouts, standardized errors, and safe retries for idempotent requests. Offline clinical operations are handled by the local outbox rather than Axios interceptors alone.            |
+| State management           | React Context and feature-level hooks | Manages active screening sessions, workflow state, authentication state, connectivity, synchronization status, and cached operational resources. A larger state library should only be introduced if application complexity requires it. |
+| Internationalization       | react-i18next                         | Supports English, Kiswahili, and Luo. Translation resources can be updated independently from core application logic.                                                                                                                    |
+| Validation                 | Zod                                   | Validates forms, local records, workflow configuration, and API payloads using shared schemas.                                                                                                                                           |
+| Unit and component testing | Vitest + React Testing Library        | Tests questionnaire presentation, scoring, risk classification, routing, registration, local persistence, and portal components.                                                                                                         |
+| End-to-end testing         | Playwright                            | Tests EPDS and PHQ-2/PHQ-9 workflows, offline screening, application restart, synchronization recovery, queue behaviour, route isolation, and psychologist portal operations.                                                            |
+
 
 ### 3.2 Backend
 
