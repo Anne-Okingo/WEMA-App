@@ -398,16 +398,21 @@ WRITE_AUDIT_LOG
 
 ### 3.3 Infrastructure & Operations
 
-| Concern | Technology |
-|---|---|
-| Containerization | Docker |
-| Local orchestration | Docker Compose |
-| CI/CD | GitHub Actions (or equivalent), gated on lint/test/build |
-| Error monitoring | Sentry (or equivalent) |
-| Logging | Centralized structured logs (Pino → log aggregator) |
-| Backups | Automated PostgreSQL backups with restore testing |
-| Health checks | `/health` and `/health/deep` endpoints per service |
-| Secrets | Environment-variable injection via secrets manager (never committed) |
+| Concern | Technology / Approach | MVP1 Notes |
+|---|---|---|
+| Containerization | Docker | Containerize the WEMA backend API, background workers, and PostgreSQL-related services. The React applications can run outside Docker during active development and be built as static production assets for deployment. |
+| Local orchestration | Docker Compose | Runs PostgreSQL, backend API, background workers, and supporting services consistently in local development and testing environments. |
+| CI/CD | GitHub Actions or equivalent | Every pull request should run linting, type checking, unit tests, integration tests, and production builds before code can be merged or deployed. |
+| Error monitoring | Sentry or equivalent | Captures frontend crashes, backend exceptions, synchronization failures, and worker errors. Sensitive patient information must not be included in error payloads. |
+| Application logging | Pino structured logs | Produces structured JSON logs for the backend API and workers, including correlation IDs, workflow type, job status, and integration outcomes. Sensitive fields must be redacted. |
+| Log collection | Deployment-platform logs or centralized log aggregator | For MVP1, logs may initially be collected through the hosting platform or container runtime. A dedicated log aggregation platform may be introduced as deployment complexity increases. |
+| Database backups | Automated PostgreSQL backups | Perform scheduled encrypted backups, define retention periods, and regularly test that backups can actually be restored. |
+| Health checks | `/health` and `/health/deep` endpoints | `/health` confirms that the service process is running. `/health/deep` checks critical dependencies such as PostgreSQL and the background-job system. External services such as Wonder should be reported separately rather than making the entire service unhealthy during a temporary Wonder outage. |
+| Secrets management | Environment-variable injection through deployment secrets | Database credentials, JWT secrets, device credentials, Wonder credentials, and notification-provider secrets must never be committed to source control. |
+| Environment separation | Development, staging, and production environments | Each environment should use separate databases, credentials, configuration, Wonder endpoints, and notification destinations. |
+| Deployment configuration | Environment-specific configuration and database seed data | Facility identifiers, rooms, workflow settings, clinical thresholds, supported languages, and integration details should be managed through controlled configuration rather than hard-coded values. |
+| Security scanning | Dependency and container-image scanning | Use tools such as Dependabot and container scanning to identify vulnerable packages and base images before deployment. |
+| Database migrations | Prisma migrations executed during controlled deployment | Database schema changes should be versioned, reviewed, backed up, and applied before the new application version starts serving requests. |
 
 ### 3.4 Containerization Strategy — Recommendation
 
