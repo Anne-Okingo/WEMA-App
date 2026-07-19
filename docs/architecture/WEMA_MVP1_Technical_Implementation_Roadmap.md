@@ -416,23 +416,25 @@ WRITE_AUDIT_LOG
 
 ### 3.4 Containerization Strategy — Recommendation
 
-**Recommendation: begin containerizing from Phase 1, but keep it lightweight.The goal is to make every developer run the same backend environment while keeping frontend development fast and simple.**
+**Recommendation: begin containerizing from Phase 1, but keep it lightweight. The goal is to ensure every developer runs the same backend environment while keeping frontend development fast and simple.**
 
-For WEMA, instead of telling every developer:
+For WEMA, instead of telling every developer to:
 
-- install PostgreSQL manually(PostgreSQL)
-- configure the database manually(Backend API)
-- install the exact Node version,
-- set up workers manually(Background workers)
+- install PostgreSQL manually;
+- configure the backend API manually;
+- install the exact Node.js version;
+- configure and run background workers manually;
 
-you provide a Docker setup that starts the required services consistently.
+provide a Docker setup that starts the required services consistently.
 
-- **Why start early:** WEMA's backend has multiple moving parts from day one — API server, background workers, PostgreSQL, and (soon) the Wonder adapter's own configuration. Establishing Docker Compose in Phase 1 means every developer runs an identical environment from the first commit, and staging/production Dockerfiles are refined incrementally rather than retrofitted under deadline pressure later. Retrofitting containerization after MVP1 is functionally complete is a known source of "works on my machine" defects and wasted QA cycles.
-- **What should be containerized:** PostgreSQL, the backend API server, and background workers. Each gets its own Dockerfile and Compose service.
-- **Local development:** Docker Compose brings up Postgres + backend + workers with one command. Environment variables are supplied via a `.env.example`-derived local `.env` file, never committed.
-- **Frontend in a container? No, not during active development.** The React/Vite app should run natively on the developer's machine (`npm run dev`) for fast hot-module-reload; containerizing it adds file-watching overhead and volume-mount friction with negligible benefit at this stage. It **should** be containerized (or built into a static bundle served by Nginx) for staging and production, where the goal is a reproducible, immutable artifact rather than fast iteration.
-- **Staging vs. production differences:** Staging uses the same images as production but with seeded test data, verbose logging, and relaxed rate limits, wired to a Wonder **sandbox/test** endpoint. Production uses hardened images (multi-stage builds, no dev dependencies), strict logging levels, real secrets, and the live Wonder endpoint.
-- **PostgreSQL, backend, and workers** run as separate containers/services in all environments beyond local dev, so they can be scaled and restarted independently; in production, PostgreSQL should be a managed service (e.g., managed Postgres) rather than a self-hosted container, for backup and failover guarantees.
+- **Why start early:** WEMA's backend has multiple moving parts from day one — the API server, background workers, PostgreSQL, and the Wonder adapter configuration. Establishing Docker Compose in Phase 1 means every developer runs an identical environment from the first commit, while staging and production Dockerfiles are refined incrementally rather than retrofitted under deadline pressure. Retrofitting containerization after MVP1 is functionally complete is a common source of "works on my machine" defects and wasted QA cycles.
+- **What should be containerized:** The backend API and background workers should have dedicated Dockerfiles and separate Compose services. PostgreSQL should use the official PostgreSQL image as its own Compose service.
+- **Local development:** Docker Compose brings up PostgreSQL, the backend API, and workers with one command. Environment variables are supplied through a local `.env` file derived from `.env.example`. The local `.env` file must never be committed.
+- **Frontend in a container? No, not during active development.** The React/Vite applications should run directly on the developer's machine using `npm run dev` to preserve fast hot-module replacement. Containerizing the frontend during active development adds file-watching overhead and volume-mount complexity with little benefit at this stage.
+- **Frontend deployment:** For staging and production, the React applications should be built into reproducible static bundles and served through Nginx, a containerized web server, or an approved static-hosting platform.
+- **Staging versus production:** Staging should use the same application images as production but with seeded test data, more detailed logging, controlled test notification destinations, and a Wonder sandbox or test endpoint. Production should use hardened multi-stage images, exclude development dependencies, use production logging levels, inject real secrets securely, and connect to the live Wonder endpoint.
+- **Service separation:** The backend API and workers should run as separate services so they can be restarted and scaled independently.
+- **Production PostgreSQL:** PostgreSQL should preferably run as a managed database service in production rather than as a self-hosted container, because managed services provide stronger backup, restore, monitoring, and failover capabilities.
 
 ---
 
