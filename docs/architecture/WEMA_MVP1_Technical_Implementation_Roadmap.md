@@ -479,368 +479,549 @@ The coordination overhead of maintaining separate repositories, independent pack
 
 ```
 wema/
-├── frontend/
-│   ├── patient-app/
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   │   ├── App.tsx
-│   │   │   │   ├── routes.tsx
-│   │   │   │   ├── providers.tsx
-│   │   │   │   └── error-boundary.tsx
-│   │   │   │
-│   │   │   ├── features/
-│   │   │   │   ├── language/
-│   │   │   │   ├── consent/
-│   │   │   │   ├── patient-identification/
-│   │   │   │   ├── manual-registration/
+├── apps/
+│   ├── frontend/
+│   │   ├── patient-app/
+│   │   │   ├── src/
+│   │   │   │   ├── app/
+│   │   │   │   │   ├── App.tsx
+│   │   │   │   │   ├── routes.tsx
+│   │   │   │   │   ├── providers.tsx
+│   │   │   │   │   ├── workflow-entry.ts
+│   │   │   │   │   ├── startup.ts
+│   │   │   │   │   └── error-boundary.tsx
 │   │   │   │   │
-│   │   │   │   ├── screening/
-│   │   │   │   │   ├── shared/
-│   │   │   │   │   │   ├── components/
-│   │   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── navigation/
-│   │   │   │   │   │   └── session/
-│   │   │   │   │   │
-│   │   │   │   │   ├── epds/
-│   │   │   │   │   │   ├── components/
+│   │   │   │   ├── workflows/
+│   │   │   │   │   ├── epds-wonder/
+│   │   │   │   │   │   ├── epds-wonder.routes.tsx
+│   │   │   │   │   │   ├── epds-wonder.workflow.ts
+│   │   │   │   │   │   ├── epds-wonder.types.ts
 │   │   │   │   │   │   ├── screens/
 │   │   │   │   │   │   ├── hooks/
-│   │   │   │   │   │   ├── services/
 │   │   │   │   │   │   └── tests/
 │   │   │   │   │   │
-│   │   │   │   │   ├── phq2/              # MVP2
-│   │   │   │   │   ├── pcl/               # MVP2
-│   │   │   │   │   └── dast/              # MVP2
+│   │   │   │   │   └── general-public-phq/
+│   │   │   │   │       ├── general-public-phq.routes.tsx
+│   │   │   │   │       ├── general-public-phq.workflow.ts
+│   │   │   │   │       ├── general-public-phq.types.ts
+│   │   │   │   │       ├── screens/
+│   │   │   │   │       ├── hooks/
+│   │   │   │   │       └── tests/
 │   │   │   │   │
-│   │   │   │   ├── results/
-│   │   │   │   ├── routing/
-│   │   │   │   ├── room-assignment/
-│   │   │   │   ├── waiting-queue/
-│   │   │   │   ├── psychoeducation/
-│   │   │   │   ├── media-player/
-│   │   │   │   ├── audio/
-│   │   │   │   ├── avatar/
-│   │   │   │   └── session-reset/
+│   │   │   │   ├── features/
+│   │   │   │   │   ├── language/
+│   │   │   │   │   ├── consent/
+│   │   │   │   │   ├── wonder-patient-identification/
+│   │   │   │   │   ├── wema-patient-registration/
+│   │   │   │   │   ├── screening-runner/
+│   │   │   │   │   ├── results/
+│   │   │   │   │   ├── routing/
+│   │   │   │   │   ├── room-assignment/
+│   │   │   │   │   ├── waiting-queue/
+│   │   │   │   │   ├── psychoeducation/
+│   │   │   │   │   ├── media/
+│   │   │   │   │   │   ├── audio/
+│   │   │   │   │   │   └── text/
+│   │   │   │   │   └── session-reset/
+│   │   │   │   │
+│   │   │   │   ├── offline/
+│   │   │   │   │   ├── database/
+│   │   │   │   │   │   ├── database.ts
+│   │   │   │   │   │   ├── schema.ts
+│   │   │   │   │   │   ├── table-names.ts
+│   │   │   │   │   │   └── migrations/
+│   │   │   │   │   │
+│   │   │   │   │   ├── repositories/
+│   │   │   │   │   │   ├── patient.repository.ts
+│   │   │   │   │   │   ├── session.repository.ts
+│   │   │   │   │   │   ├── assessment.repository.ts
+│   │   │   │   │   │   ├── resource.repository.ts
+│   │   │   │   │   │   └── outbox.repository.ts
+│   │   │   │   │   │
+│   │   │   │   │   ├── outbox/
+│   │   │   │   │   │   ├── outbox.types.ts
+│   │   │   │   │   │   ├── outbox.factory.ts
+│   │   │   │   │   │   ├── outbox.processor.ts
+│   │   │   │   │   │   ├── retry-policy.ts
+│   │   │   │   │   │   └── outbox-status.ts
+│   │   │   │   │   │
+│   │   │   │   │   ├── synchronization/
+│   │   │   │   │   │   ├── push-sync.ts
+│   │   │   │   │   │   ├── pull-sync.ts
+│   │   │   │   │   │   ├── sync-engine.ts
+│   │   │   │   │   │   ├── conflict-policy.ts
+│   │   │   │   │   │   ├── sync-status.ts
+│   │   │   │   │   │   └── sync-errors.ts
+│   │   │   │   │   │
+│   │   │   │   │   ├── connectivity/
+│   │   │   │   │   │   ├── connectivity.service.ts
+│   │   │   │   │   │   └── use-connectivity.ts
+│   │   │   │   │   │
+│   │   │   │   │   └── service-worker/
+│   │   │   │   │       ├── register-service-worker.ts
+│   │   │   │   │       ├── cache-policy.ts
+│   │   │   │   │       └── update-policy.ts
+│   │   │   │   │
+│   │   │   │   ├── device/
+│   │   │   │   │   ├── device-identity.ts
+│   │   │   │   │   ├── credential-storage.ts
+│   │   │   │   │   ├── device-registration.ts
+│   │   │   │   │   └── device-status.ts
+│   │   │   │   │
+│   │   │   │   ├── api/
+│   │   │   │   │   ├── client.ts
+│   │   │   │   │   ├── interceptors.ts
+│   │   │   │   │   ├── endpoints.ts
+│   │   │   │   │   └── errors.ts
+│   │   │   │   │
+│   │   │   │   ├── shared/
+│   │   │   │   │   ├── components/
+│   │   │   │   │   ├── hooks/
+│   │   │   │   │   ├── layouts/
+│   │   │   │   │   ├── utils/
+│   │   │   │   │   └── constants/
+│   │   │   │   │
+│   │   │   │   ├── i18n/
+│   │   │   │   │   ├── config.ts
+│   │   │   │   │   ├── language.types.ts
+│   │   │   │   │   └── resource-loader.ts
+│   │   │   │   │
+│   │   │   │   └── main.tsx
 │   │   │   │
-│   │   │   ├── shared/
-│   │   │   │   ├── components/
-│   │   │   │   ├── hooks/
-│   │   │   │   ├── layouts/
-│   │   │   │   ├── utils/
-│   │   │   │   └── constants/
+│   │   │   ├── public/
+│   │   │   │   ├── icons/
+│   │   │   │   └── offline/
 │   │   │   │
-│   │   │   ├── local/
-│   │   │   │   ├── db/
-│   │   │   │   │   ├── schema.ts
-│   │   │   │   │   ├── migrations.ts
-│   │   │   │   │   └── database.ts
-│   │   │   │   ├── repositories/
-│   │   │   │   ├── outbox/
-│   │   │   │   ├── sync/
-│   │   │   │   ├── event-bus/
-│   │   │   │   ├── connectivity/
-│   │   │   │   └── service-worker/
+│   │   │   ├── tests/
+│   │   │   │   ├── integration/
+│   │   │   │   └── e2e/
 │   │   │   │
-│   │   │   ├── api/
-│   │   │   │   ├── client.ts
-│   │   │   │   ├── endpoints.ts
-│   │   │   │   └── errors.ts
-│   │   │   │
-│   │   │   ├── i18n/
-│   │   │   │   ├── config.ts
-│   │   │   │   └── resources.ts
-│   │   │   │
-│   │   │   ├── types/
-│   │   │   └── main.tsx
+│   │   │   ├── vite.config.ts
+│   │   │   ├── tsconfig.json
+│   │   │   └── package.json
 │   │   │
-│   │   ├── public/
-│   │   │   ├── icons/
-│   │   │   └── offline/
-│   │   ├── tests/
-│   │   │   ├── unit/
-│   │   │   ├── integration/
-│   │   │   └── e2e/
-│   │   ├── vite.config.ts
-│   │   ├── tsconfig.json
+│   │   └── psychologist-portal/
+│   │       ├── src/
+│   │       │   ├── app/
+│   │       │   │   ├── App.tsx
+│   │       │   │   ├── routes.tsx
+│   │       │   │   ├── providers.tsx
+│   │       │   │   ├── startup.ts
+│   │       │   │   ├── protected-route.tsx
+│   │       │   │   └── error-boundary.tsx
+│   │       │   │
+│   │       │   ├── features/
+│   │       │   │   ├── authentication/
+│   │       │   │   ├── profile/
+│   │       │   │   ├── shift/
+│   │       │   │   ├── availability/
+│   │       │   │   ├── rooms/
+│   │       │   │   ├── queue/
+│   │       │   │   ├── assignments/
+│   │       │   │   ├── consultations/
+│   │       │   │   └── scheduling/
+│   │       │   │
+│   │       │   ├── api/
+│   │       │   │   ├── client.ts
+│   │       │   │   ├── auth.api.ts
+│   │       │   │   ├── operations.api.ts
+│   │       │   │   ├── scheduling.api.ts
+│   │       │   │   └── errors.ts
+│   │       │   │
+│   │       │   ├── auth/
+│   │       │   │   ├── token-storage.ts
+│   │       │   │   ├── session.ts
+│   │       │   │   └── authorization.ts
+│   │       │   │
+│   │       │   ├── shared/
+│   │       │   │   ├── components/
+│   │       │   │   ├── hooks/
+│   │       │   │   ├── layouts/
+│   │       │   │   └── utils/
+│   │       │   │
+│   │       │   ├── i18n/
+│   │       │   └── main.tsx
+│   │       │
+│   │       ├── public/
+│   │       ├── tests/
+│   │       │   ├── integration/
+│   │       │   └── e2e/
+│   │       ├── vite.config.ts
+│   │       ├── tsconfig.json
+│   │       └── package.json
+│   │
+│   └── backend/
+│       ├── api/
+│       │   ├── src/
+│       │   │   ├── app/
+│       │   │   │   ├── app.ts
+│       │   │   │   ├── server.ts
+│       │   │   │   ├── routes.ts
+│       │   │   │   ├── startup.ts
+│       │   │   │   └── shutdown.ts
+│       │   │   │
+│       │   │   ├── modules/
+│       │   │   │   ├── authentication/
+│       │   │   │   ├── users/
+│       │   │   │   ├── devices/
+│       │   │   │   ├── facilities/
+│       │   │   │   ├── patients/
+│       │   │   │   ├── consent/
+│       │   │   │   ├── screening-sessions/
+│       │   │   │   ├── assessments/
+│       │   │   │   ├── psychologists/
+│       │   │   │   ├── availability/
+│       │   │   │   ├── rooms/
+│       │   │   │   ├── queue/
+│       │   │   │   ├── assignments/
+│       │   │   │   ├── consultations/
+│       │   │   │   ├── scheduling/
+│       │   │   │   ├── synchronization/
+│       │   │   │   ├── notifications/
+│       │   │   │   ├── media/
+│       │   │   │   ├── audit/
+│       │   │   │   ├── system-configuration/
+│       │   │   │   └── health/
+│       │   │   │
+│       │   │   ├── workflows/
+│       │   │   │   ├── workflow-registry.ts
+│       │   │   │   ├── workflow.types.ts
+│       │   │   │   ├── workflow-validator.ts
+│       │   │   │   ├── epds-wonder.workflow.ts
+│       │   │   │   └── general-public-phq.workflow.ts
+│       │   │   │
+│       │   │   ├── integrations/
+│       │   │   │   ├── wonder/
+│       │   │   │   │   ├── wonder.client.ts
+│       │   │   │   │   ├── wonder.auth.ts
+│       │   │   │   │   ├── wonder.config.ts
+│       │   │   │   │   ├── wonder.types.ts
+│       │   │   │   │   ├── patient.mapper.ts
+│       │   │   │   │   ├── epds-result.mapper.ts
+│       │   │   │   │   ├── wonder.errors.ts
+│       │   │   │   │   └── tests/
+│       │   │   │   │
+│       │   │   │   └── whatsapp/
+│       │   │   │       ├── whatsapp.client.ts
+│       │   │   │       ├── whatsapp.config.ts
+│       │   │   │       ├── public-risk-alert.mapper.ts
+│       │   │   │       ├── whatsapp.errors.ts
+│       │   │   │       └── tests/
+│       │   │   │
+│       │   │   ├── middleware/
+│       │   │   │   ├── authentication.middleware.ts
+│       │   │   │   ├── device-auth.middleware.ts
+│       │   │   │   ├── authorization.middleware.ts
+│       │   │   │   ├── validation.middleware.ts
+│       │   │   │   ├── request-id.middleware.ts
+│       │   │   │   ├── logging.middleware.ts
+│       │   │   │   └── error-handler.middleware.ts
+│       │   │   │
+│       │   │   ├── config/
+│       │   │   │   ├── environment.ts
+│       │   │   │   ├── database.ts
+│       │   │   │   ├── security.ts
+│       │   │   │   └── jobs.ts
+│       │   │   │
+│       │   │   └── shared/
+│       │   │       ├── errors/
+│       │   │       ├── http/
+│       │   │       ├── utils/
+│       │   │       └── constants/
+│       │   │
+│       │   ├── tests/
+│       │   │   ├── unit/
+│       │   │   ├── integration/
+│       │   │   ├── api/
+│       │   │   └── contract/
+│       │   │
+│       │   ├── Dockerfile
+│       │   ├── tsconfig.json
+│       │   └── package.json
+│       │
+│       └── worker/
+│           ├── src/
+│           │   ├── jobs/
+│           │   │   ├── refresh-wonder-patients.job.ts
+│           │   │   ├── push-epds-to-wonder.job.ts
+│           │   │   ├── send-general-public-whatsapp-alert.job.ts
+│           │   │   ├── retry-failed-synchronization.job.ts
+│           │   │   └── export-audit-events.job.ts
+│           │   │
+│           │   ├── queue/
+│           │   │   ├── queue-client.ts
+│           │   │   ├── queue-names.ts
+│           │   │   ├── retry-policy.ts
+│           │   │   ├── idempotency.ts
+│           │   │   └── dead-letter-policy.ts
+│           │   │
+│           │   ├── config/
+│           │   │   ├── environment.ts
+│           │   │   └── jobs.ts
+│           │   │
+│           │   ├── worker.ts
+│           │   ├── startup.ts
+│           │   └── shutdown.ts
+│           │
+│           ├── tests/
+│           │   ├── unit/
+│           │   ├── integration/
+│           │   └── contract/
+│           │
+│           ├── Dockerfile
+│           ├── tsconfig.json
+│           └── package.json
+│
+├── packages/
+│   ├── application/
+│   │   ├── src/
+│   │   │   ├── patients/
+│   │   │   │   ├── register-wema-patient.use-case.ts
+│   │   │   │   └── resolve-wonder-patient.use-case.ts
+│   │   │   ├── consent/
+│   │   │   │   └── record-consent.use-case.ts
+│   │   │   ├── assessments/
+│   │   │   │   ├── start-assessment.use-case.ts
+│   │   │   │   ├── complete-assessment.use-case.ts
+│   │   │   │   └── verify-assessment-result.use-case.ts
+│   │   │   ├── routing/
+│   │   │   │   └── route-patient.use-case.ts
+│   │   │   ├── queue/
+│   │   │   │   ├── create-queue-entry.use-case.ts
+│   │   │   │   └── assign-next-patient.use-case.ts
+│   │   │   ├── consultations/
+│   │   │   │   └── complete-consultation.use-case.ts
+│   │   │   ├── scheduling/
+│   │   │   │   └── schedule-follow-up.use-case.ts
+│   │   │   ├── synchronization/
+│   │   │   │   ├── process-sync-batch.use-case.ts
+│   │   │   │   └── resolve-sync-conflict.use-case.ts
+│   │   │   └── integrations/
+│   │   │       ├── enqueue-wonder-result.use-case.ts
+│   │   │       └── enqueue-public-alert.use-case.ts
 │   │   └── package.json
 │   │
-│   └── psychologist-portal/
-│       ├── src/
-│       │   ├── app/
-│       │   │   ├── App.tsx
-│       │   │   ├── routes.tsx
-│       │   │   ├── providers.tsx
-│       │   │   └── protected-route.tsx
-│       │   │
-│       │   ├── features/
-│       │   │   ├── authentication/
-│       │   │   ├── profile/
-│       │   │   ├── shift/
-│       │   │   ├── availability/
-│       │   │   ├── room/
-│       │   │   ├── assignments/
-│       │   │   ├── consultations/
-│       │   │   ├── queue/
-│       │   │   ├── audit-history/
-│       │   │   │
-│       │   │   ├── dashboard/              # MVP2
-│       │   │   ├── high-risk-cases/        # MVP2
-│       │   │   ├── scheduling/             # MVP2
-│       │   │   ├── reports/                # MVP2
-│       │   │   └── exports/                # MVP2
-│       │   │
-│       │   ├── shared/
-│       │   │   ├── components/
-│       │   │   ├── hooks/
-│       │   │   ├── layouts/
-│       │   │   └── utils/
-│       │   │
-│       │   ├── api/
-│       │   │   ├── client.ts
-│       │   │   ├── auth.ts
-│       │   │   └── psychologist.ts
-│       │   │
-│       │   ├── auth/
-│       │   │   ├── token-storage.ts
-│       │   │   └── session.ts
-│       │   │
-│       │   ├── i18n/
-│       │   ├── types/
-│       │   └── main.tsx
-│       │
-│       ├── public/
-│       ├── tests/
-│       │   ├── unit/
-│       │   ├── integration/
-│       │   └── e2e/
-│       ├── vite.config.ts
-│       ├── tsconfig.json
-│       └── package.json
-│
-├── backend/
-│   ├── src/
-│   │   ├── modules/
-│   │   │   ├── auth/
-│   │   │   ├── users/
-│   │   │   ├── devices/
-│   │   │   ├── facilities/
+│   ├── assessment-tools/
+│   │   ├── src/
+│   │   │   ├── common/
+│   │   │   │   ├── assessment-tool.types.ts
+│   │   │   │   ├── answer-option.types.ts
+│   │   │   │   ├── assessment-version.ts
+│   │   │   │   └── content-reference.types.ts
+│   │   │   ├── epds/
+│   │   │   │   ├── definition.ts
+│   │   │   │   ├── questions.ts
+│   │   │   │   ├── answer-options.ts
+│   │   │   │   ├── interpretation.ts
+│   │   │   │   └── index.ts
+│   │   │   ├── phq2/
+│   │   │   │   ├── definition.ts
+│   │   │   │   ├── questions.ts
+│   │   │   │   ├── answer-options.ts
+│   │   │   │   ├── interpretation.ts
+│   │   │   │   └── index.ts
+│   │   │   └── phq9/
+│   │   │       ├── definition.ts
+│   │   │       ├── questions.ts
+│   │   │       ├── answer-options.ts
+│   │   │       ├── interpretation.ts
+│   │   │       └── index.ts
+│   │   └── package.json
+│   │
+│   ├── contracts/
+│   │   ├── src/
+│   │   │   ├── common/
+│   │   │   │   ├── identifiers.schema.ts
+│   │   │   │   ├── pagination.schema.ts
+│   │   │   │   └── timestamps.schema.ts
 │   │   │   ├── patients/
-│   │   │   ├── screening-sessions/
+│   │   │   ├── consent/
 │   │   │   ├── assessments/
-│   │   │   ├── assessment-tools/
-│   │   │   ├── psychologists/
-│   │   │   ├── availability/
-│   │   │   ├── rooms/
+│   │   │   ├── screening-sessions/
+│   │   │   ├── routing/
+│   │   │   ├── queue/
 │   │   │   ├── assignments/
 │   │   │   ├── consultations/
-│   │   │   ├── queue/
-│   │   │   ├── scheduling/                 # MVP2-ready
-│   │   │   ├── reports/                    # MVP2-ready
-│   │   │   ├── exports/                    # MVP2-ready
+│   │   │   ├── scheduling/
+│   │   │   ├── psychologists/
+│   │   │   ├── facilities/
+│   │   │   ├── devices/
+│   │   │   ├── api/
+│   │   │   ├── events/
+│   │   │   ├── jobs/
+│   │   │   │   ├── job-envelope.schema.ts
+│   │   │   │   ├── refresh-wonder-patients.schema.ts
+│   │   │   │   ├── push-epds-to-wonder.schema.ts
+│   │   │   │   └── send-public-risk-alert.schema.ts
 │   │   │   ├── synchronization/
-│   │   │   ├── notifications/
-│   │   │   ├── integration-routing/
-│   │   │   ├── wonder/
-│   │   │   ├── media/
-│   │   │   ├── configuration/
-│   │   │   ├── audit/
-│   │   │   └── health/
-│   │   │
-│   │   ├── workers/
-│   │   │   ├── handlers/
-│   │   │   │   ├── update-wonder.handler.ts
-│   │   │   │   ├── send-whatsapp.handler.ts
-│   │   │   │   ├── write-audit.handler.ts
-│   │   │   │   ├── process-notification.handler.ts
-│   │   │   │   └── generate-report.handler.ts     # MVP2
-│   │   │   ├── job-runner.ts
-│   │   │   ├── retry-policy.ts
-│   │   │   └── worker.ts
-│   │   │
-│   │   ├── database/
-│   │   │   ├── connection.ts
-│   │   │   ├── transaction.ts
-│   │   │   └── repositories/
-│   │   │
-│   │   ├── middleware/
-│   │   │   ├── authentication.ts
-│   │   │   ├── authorization.ts
-│   │   │   ├── validation.ts
-│   │   │   ├── request-id.ts
-│   │   │   ├── logging.ts
-│   │   │   └── error-handler.ts
-│   │   │
-│   │   ├── config/
-│   │   │   ├── environment.ts
-│   │   │   ├── database.ts
-│   │   │   ├── wonder.ts
-│   │   │   ├── whatsapp.ts
-│   │   │   └── security.ts
-│   │   │
-│   │   ├── shared/
-│   │   │   ├── errors/
-│   │   │   ├── utils/
-│   │   │   ├── constants/
-│   │   │   └── types/
-│   │   │
-│   │   ├── app.ts
-│   │   └── server.ts
-│   │
-│   ├── migrations/
-│   ├── seeds/
-│   │   ├── facilities/
-│   │   ├── rooms/
-│   │   ├── psychologists/
-│   │   ├── configuration/
-│   │   ├── assessment-tools/
-│   │   └── media/
-│   ├── tests/
-│   │   ├── unit/
-│   │   ├── integration/
-│   │   ├── api/
-│   │   └── contract/
-│   ├── Dockerfile
-│   ├── tsconfig.json
-│   └── package.json
-│
-├── shared/
-│   ├── types/
-│   │   ├── patient.ts
-│   │   ├── screening-session.ts
-│   │   ├── assessment.ts
-│   │   ├── assessment-tool.ts
-│   │   ├── psychologist.ts
-│   │   ├── room.ts
-│   │   ├── assignment.ts
-│   │   ├── queue.ts
-│   │   ├── scheduling.ts
-│   │   ├── reporting.ts
-│   │   ├── synchronization.ts
-│   │   └── api.ts
-│   │
-│   ├── validation/
-│   │   ├── patient.schema.ts
-│   │   ├── screening-session.schema.ts
-│   │   ├── assessment.schema.ts
-│   │   ├── assessment-tool.schema.ts
-│   │   ├── psychologist.schema.ts
-│   │   └── synchronization.schema.ts
+│   │   │   │   ├── sync-envelope.schema.ts
+│   │   │   │   ├── push-request.schema.ts
+│   │   │   │   ├── push-response.schema.ts
+│   │   │   │   ├── pull-request.schema.ts
+│   │   │   │   ├── pull-response.schema.ts
+│   │   │   │   ├── cursor.schema.ts
+│   │   │   │   ├── conflict.schema.ts
+│   │   │   │   ├── tombstone.schema.ts
+│   │   │   │   ├── sync-error.schema.ts
+│   │   │   │   └── protocol-version.ts
+│   │   │   └── integrations/
+│   │   │       ├── wonder/
+│   │   │       └── whatsapp/
+│   │   └── package.json
 │   │
 │   ├── scoring/
-│   │   ├── common/
-│   │   │   ├── scoring.types.ts
-│   │   │   ├── risk.types.ts
-│   │   │   └── scoring.interface.ts
-│   │   │
-│   │   ├── epds/
-│   │   │   ├── questions.ts
-│   │   │   ├── scoring.ts
-│   │   │   ├── rules.ts
-│   │   │   ├── types.ts
-│   │   │   └── tests.ts
-│   │   │
-│   │   ├── phq2/                         # MVP2
-│   │   ├── pcl/                          # MVP2
-│   │   └── dast/                         # MVP2
+│   │   ├── src/
+│   │   │   ├── common/
+│   │   │   │   ├── scoring.types.ts
+│   │   │   │   ├── scoring-result.ts
+│   │   │   │   └── scoring-version.ts
+│   │   │   ├── epds/
+│   │   │   │   ├── score-epds.ts
+│   │   │   │   ├── epds-scoring.version.ts
+│   │   │   │   └── tests/
+│   │   │   ├── phq2/
+│   │   │   │   ├── score-phq2.ts
+│   │   │   │   ├── phq2-scoring.version.ts
+│   │   │   │   └── tests/
+│   │   │   └── phq9/
+│   │   │       ├── score-phq9.ts
+│   │   │       ├── phq9-scoring.version.ts
+│   │   │       └── tests/
+│   │   └── package.json
 │   │
 │   ├── clinical-rules/
-│   │   ├── common/
-│   │   │   ├── risk-classification.ts
-│   │   │   ├── routing-result.ts
-│   │   │   └── rule-version.ts
-│   │   │
-│   │   ├── epds/
-│   │   │   ├── routing-rules.ts
-│   │   │   ├── clinical-messages.ts
-│   │   │   └── rule-versions.ts
-│   │   │
-│   │   ├── phq2/                         # MVP2
-│   │   ├── pcl/                          # MVP2
-│   │   └── dast/                         # MVP2
+│   │   ├── src/
+│   │   │   ├── common/
+│   │   │   │   ├── clinical-rule.types.ts
+│   │   │   │   ├── rule-version.ts
+│   │   │   │   ├── routing-result.ts
+│   │   │   │   └── safety-invariants.ts
+│   │   │   ├── epds/
+│   │   │   │   ├── classification.rules.ts
+│   │   │   │   ├── routing.rules.ts
+│   │   │   │   ├── safety.rules.ts
+│   │   │   │   ├── clinical-messages.ts
+│   │   │   │   ├── versions.ts
+│   │   │   │   └── tests/
+│   │   │   └── general-public-phq/
+│   │   │       ├── phq2-continuation.rules.ts
+│   │   │       ├── classification.rules.ts
+│   │   │       ├── routing.rules.ts
+│   │   │       ├── safety.rules.ts
+│   │   │       ├── clinical-messages.ts
+│   │   │       ├── versions.ts
+│   │   │       └── tests/
+│   │   └── package.json
 │   │
-│   ├── integration-targets/
-│   │   ├── integration-target.ts
-│   │   ├── wonder.target.ts
-│   │   └── wema-only.target.ts
+│   ├── database/
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma
+│   │   │   ├── migrations/
+│   │   │   └── seed.ts
+│   │   ├── src/
+│   │   │   ├── client.ts
+│   │   │   ├── transactions/
+│   │   │   ├── repositories/
+│   │   │   ├── audit/
+│   │   │   │   ├── audit.repository.ts
+│   │   │   │   └── transactional-audit.ts
+│   │   │   └── index.ts
+│   │   └── package.json
 │   │
-│   ├── api-contracts/
-│   │   ├── sync.contracts.ts
-│   │   ├── assessment.contracts.ts
-│   │   ├── psychologist.contracts.ts
-│   │   ├── report.contracts.ts
-│   │   └── wonder.contracts.ts
+│   ├── config/
+│   │   ├── src/
+│   │   │   ├── environment.schema.ts
+│   │   │   ├── workflow-config.ts
+│   │   │   ├── facility-config.ts
+│   │   │   ├── clinical-config.ts
+│   │   │   ├── content-config.ts
+│   │   │   └── feature-flags.ts
+│   │   └── package.json
 │   │
-│   ├── ui/
-│   └── config/
+│   ├── observability/
+│   │   ├── src/
+│   │   │   ├── logger.ts
+│   │   │   ├── correlation-id.ts
+│   │   │   ├── redaction.ts
+│   │   │   ├── error-monitoring.ts
+│   │   │   └── metrics.ts
+│   │   └── package.json
+│   │
+│   ├── testing/
+│   │   ├── src/
+│   │   │   ├── fixtures/
+│   │   │   │   ├── patients/
+│   │   │   │   ├── assessments/
+│   │   │   │   ├── facilities/
+│   │   │   │   ├── psychologists/
+│   │   │   │   └── synchronization/
+│   │   │   ├── builders/
+│   │   │   ├── stubs/
+│   │   │   │   ├── wonder/
+│   │   │   │   └── whatsapp/
+│   │   │   ├── golden-cases/
+│   │   │   │   ├── epds/
+│   │   │   │   ├── phq2/
+│   │   │   │   └── phq9/
+│   │   │   └── test-database/
+│   │   └── package.json
+│   │
+│   └── ui/
+│       ├── src/
+│       │   ├── components/
+│       │   ├── forms/
+│       │   ├── feedback/
+│       │   ├── accessibility/
+│       │   ├── tokens/
+│       │   └── index.ts
+│       └── package.json
 │
 ├── content/
-│   ├── translations/
-│   │   ├── en/
-│   │   │   ├── common.json
-│   │   │   ├── consent.json
-│   │   │   ├── screening/
-│   │   │   │   ├── epds.json
-│   │   │   │   ├── phq2.json             # MVP2
-│   │   │   │   ├── pcl.json              # MVP2
-│   │   │   │   └── dast.json             # MVP2
-│   │   │   ├── results.json
-│   │   │   └── routing.json
-│   │   ├── sw/
-│   │   └── luo/
-│   │
-│   ├── audio/
-│   │   ├── en/
-│   │   │   ├── consent/
-│   │   │   ├── screening/
-│   │   │   │   ├── epds/
-│   │   │   │   ├── phq2/                 # MVP2
-│   │   │   │   ├── pcl/                  # MVP2
-│   │   │   │   └── dast/                 # MVP2
-│   │   │   ├── results/
-│   │   │   └── routing/
-│   │   ├── sw/
-│   │   └── luo/
-│   │
-│   ├── avatar/
-│   │   ├── assets/
-│   │   ├── animations/
-│   │   ├── scripts/
+│   ├── source/
+│   │   ├── translations/
 │   │   │   ├── en/
-│   │   │   │   └── screening/
-│   │   │   │       ├── epds/
-│   │   │   │       ├── phq2/             # MVP2
-│   │   │   │       ├── pcl/              # MVP2
-│   │   │   │       └── dast/             # MVP2
+│   │   │   │   ├── common.json
+│   │   │   │   ├── consent.json
+│   │   │   │   ├── epds.json
+│   │   │   │   ├── phq2.json
+│   │   │   │   ├── phq9.json
+│   │   │   │   ├── results.json
+│   │   │   │   └── routing.json
 │   │   │   ├── sw/
 │   │   │   └── luo/
-│   │   └── manifest.json
+│   │   ├── audio/
+│   │   │   ├── en/
+│   │   │   ├── sw/
+│   │   │   └── luo/
+│   │   ├── avatar/
+│   │   │   ├── assets/
+│   │   │   ├── animations/
+│   │   │   └── scripts/
+│   │   ├── video/
+│   │   │   ├── en/
+│   │   │   ├── sw/
+│   │   │   └── luo/
+│   │   └── clinical-messages/
+│   │       ├── en/
+│   │       ├── sw/
+│   │       └── luo/
 │   │
-│   ├── video/
-│   │   ├── en/
-│   │   ├── sw/
-│   │   └── luo/
+│   ├── manifests/
+│   │   ├── content-manifest.json
+│   │   ├── audio-manifest.json
+│   │   ├── video-manifest.json
+│   │   ├── screening-tools.json
+│   │   └── content-version.json
 │   │
-│   ├── clinical-messages/
-│   │   ├── en/
-│   │   │   ├── epds.json
-│   │   │   ├── phq2.json                 # MVP2
-│   │   │   ├── pcl.json                  # MVP2
-│   │   │   └── dast.json                 # MVP2
-│   │   ├── sw/
-│   │   └── luo/
-│   │
-│   └── manifests/
-│       ├── audio.json
-│       ├── avatar.json
-│       ├── video.json
-│       ├── screening-tools.json
-│       └── content-version.json
+│   └── generated/
+│       ├── validated-content/
+│       └── generated-manifest.json
 │
 ├── infrastructure/
 │   ├── docker/
 │   │   ├── frontend.Dockerfile
-│   │   ├── worker.Dockerfile
-│   │   └── nginx.conf
+│   │   ├── nginx.conf
+│   │   └── docker-compose.override.yml
 │   │
 │   ├── deployment/
 │   │   ├── development/
@@ -858,49 +1039,91 @@ wema/
 │   │   └── restore-test/
 │   │
 │   └── security/
-│       ├── secrets/
+│       ├── README.md
+│       ├── secret-management.md
+│       ├── data-protection.md
 │       └── policies/
 │
 ├── docs/
 │   ├── architecture/
-│   │   ├── technical-design.md
-│   │   ├── implementation-roadmap.md
+│   │   ├── system-context.md
+│   │   ├── component-map.md
+│   │   ├── data-ownership.md
+│   │   ├── deployment-view.md
+│   │   ├── synchronization-design.md
 │   │   └── decisions/
+│   │
+│   ├── workflows/
+│   │   ├── epds-wonder.md
+│   │   └── general-public-phq.md
+│   │
+│   ├── integrations/
+│   │   ├── wonder/
+│   │   └── whatsapp/
+│   │
+│   ├── clinical/
+│   │   ├── assessment-tools.md
+│   │   ├── scoring-versions.md
+│   │   ├── clinical-rules.md
+│   │   └── clinical-approval-register.md
+│   │
+│   ├── privacy/
+│   │   ├── consent.md
+│   │   ├── retention-policy.md
+│   │   └── data-access.md
+│   │
 │   ├── api/
 │   ├── database/
-│   ├── clinical/
-│   │   ├── mvp1/
-│   │   └── mvp2/
 │   ├── testing/
 │   ├── deployment/
 │   ├── security/
+│   │
+│   │
 │   └── runbooks/
 │       ├── sync-failure.md
 │       ├── wonder-outage.md
 │       ├── whatsapp-failure.md
 │       ├── tablet-replacement.md
+│       ├── database-restore.md
 │       └── rollback.md
 │
 ├── scripts/
 │   ├── setup/
+│   │   ├── install.ts
+│   │   └── verify-environment.ts
 │   ├── database/
+│   │   ├── migrate.ts
+│   │   ├── seed.ts
+│   │   └── reset-local.ts
 │   ├── content/
+│   │   ├── validate-content.ts
+│   │   ├── build-manifest.ts
+│   │   └── verify-translations.ts
 │   ├── testing/
+│   │   ├── run-contract-tests.ts
+│   │   └── run-golden-cases.ts
 │   └── maintenance/
+│       ├── rotate-device-credential.ts
+│       └── verify-backup.ts
 │
 ├── .github/
 │   ├── workflows/
 │   │   ├── pull-request.yml
+│   │   ├── clinical-rules-check.yml
 │   │   ├── deploy-staging.yml
 │   │   └── deploy-production.yml
 │   ├── ISSUE_TEMPLATE/
+│   ├── CODEOWNERS
 │   └── PULL_REQUEST_TEMPLATE.md
 │
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yml
 ├── package.json
+├── package-lock.json
 ├── tsconfig.base.json
+├── vitest.workspace.ts
+├── playwright.config.ts
 ├── eslint.config.js
 ├── prettier.config.js
 ├── CONTRIBUTING.md
