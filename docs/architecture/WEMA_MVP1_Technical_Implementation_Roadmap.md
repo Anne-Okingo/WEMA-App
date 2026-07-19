@@ -442,9 +442,38 @@ provide a Docker setup that starts the required services consistently.
 
 ### 4.1 Recommendation: Monorepo
 
-**Recommendation: a single monorepo containing the patient app, psychologist portal, backend, and shared packages.**
+**Recommendation: A single monorepo containing the patient application, psychologist portal, backend API, background workers, shared packages, infrastructure configuration, and documentation.**
 
-Rationale: WEMA's frontend and backend evolve together tightly — a scoring-rule change, a new screening tool, or a Wonder field mapping change typically touches shared types, backend validation, and frontend forms simultaneously. A monorepo lets these change together in one PR with one CI run, avoids version-skew between a shared `types` package and its consumers, and is far easier for a small team to onboard into ("clone one repo, run one script") than coordinating across multiple repositories with independent release cadences. Given the team size implied by the role list in this roadmap, the coordination overhead of separate repos would outweigh any isolation benefit.
+WEMA's frontend and backend components evolve together closely. A scoring-rule change, a new screening tool, a workflow update, or a Wonder field-mapping change may affect:
+
+- shared domain types;
+- frontend forms;
+- local validation;
+- backend validation;
+- workflow orchestration;
+- database schemas;
+- background jobs;
+- integration mappings;
+- automated tests.
+
+A monorepo allows these related changes to be developed, reviewed, tested, and released together through one pull request and one CI pipeline.
+
+It also reduces the risk of version mismatch between shared packages and the applications that depend on them. For example, the patient application, psychologist portal, backend API, and workers can all use the same definitions for:
+
+- `EPDS_WONDER`;
+- `GENERAL_PUBLIC_PHQ`;
+- assessment schemas;
+- risk classifications;
+- routing decisions;
+- synchronization payloads;
+- queue and assignment states;
+- Wonder integration contracts.
+
+For a small delivery team, a monorepo is easier to manage and onboard into:
+
+> Clone one repository, install dependencies, start the required services, and run the full system.
+
+The coordination overhead of maintaining separate repositories, independent package versions, and different release schedules would outweigh the isolation benefits for MVP1.
 
 ### 4.2 Proposed Directory Tree
 
