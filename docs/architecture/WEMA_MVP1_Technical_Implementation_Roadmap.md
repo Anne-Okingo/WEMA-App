@@ -1,6 +1,6 @@
 # WEMA MVP1 — Technical Implementation Roadmap
-### EPDS Workflow, Wonder HMIS Integration, No-CHP Architecture
-**Kisumu County — Maternal Mental Health Screening System**
+### EPDS & PHQ2/PHQ9 Workflow, Wonder HMIS Integration
+**Kisumu County — Mental Health Screening System for Maternal and General Public**
 
 ---
 
@@ -9,69 +9,242 @@
 | Field | Value |
 |---|---|
 | Document title | WEMA MVP1 Technical Implementation Roadmap |
-| Scope | MVP1 — EPDS Screening Workflow, Wonder-Integrated, No CHP Tasks |
-| Status | Implementation-ready draft for engineering, clinical, and PM review |
+| Scope | MVP1 — EPDS and PHQ-2/PHQ-9 Screening Workflows, Wonder-Integrated, Psychologist Portal |
+| Status | Implementation-ready draft for engineering and  clinical review |
 | Superseded architecture | CHP home-visit escalation (Wonder now owns all community follow-up) |
 | Primary source documents | *WEMA Unified Workflow Documentation v3*, *WEMA Architecture Updates — No CHP MVP* |
 
-> **Scope note:** This roadmap governs **MVP1 only** — the EPDS workflow integrated into Wonder HMIS. Workflow 2 (General Public — PHQ-2/PHQ-9, PCL, DAST) is **MVP2** and is referenced only where the MVP1 architecture must remain forward-compatible with it (shared scoring/routing engine, shared schema, no migration debt). CHP task generation, SMS dispatch, and home-visit workflows are **explicitly out of scope** for MVP1 and are called out as a *future optional enhancement* only, per the architecture update that reassigns all community follow-up responsibility to Wonder HMIS.
+> **Scope note:** This roadmap governs **MVP1 only** and includes two workflows: the EPDS workflow integrated with Wonder HMIS and the General Public PHQ-2/PHQ-9 workflow managed within WEMA. CHP task generation, SMS dispatch, and home-visit workflows are **explicitly out of scope** for MVP1 and are called out as a *future optional enhancement* only, per the architecture update that reassigns all community follow-up responsibility to Wonder HMIS.
 
 ---
 
 ## 1. Executive Summary
 
-WEMA MVP1 digitizes Edinburgh Postnatal Depression Scale (EPDS) screening at the point of triage, running on a facility tablet, fully synchronized with Wonder HMIS, and functioning **offline-first**. The system performs local scoring, local risk classification, and local routing to an available psychologist and room — with no dependency on network connectivity for the clinical decision path. Only two things ever wait on connectivity: syncing patient data with Wonder, and dispatching the WhatsApp red-alert notification.
+Executive Summary
 
-Following the architecture update removing CHP tasks from WEMA, **Wonder HMIS becomes the sole owner of community-level follow-up**. WEMA's end-of-day responsibility is reduced to: store the assessment locally, sync it to the WEMA backend, and let the backend push it — together with the clinical outcome — to Wonder. Wonder's own SMS/CHP/home-visit machinery takes it from there. This significantly simplifies WEMA's job queue, removes two backend responsibilities (`ASSIGN_CHP`, `CREATE_CHP_FOLLOWUP`) and one notification channel (`SEND_SMS`) from WEMA's scope, and reduces the surface area for clinical-safety bugs inside WEMA itself.
+WEMA MVP1 is an offline-first, local-first digital mental health screening platform designed to support early identification, triage, and management of mental health conditions within healthcare facilities. The platform delivers two independent clinical screening workflows within a single application:
 
-This document is the single reference artifact for engineering, product, clinical, and DevOps stakeholders to plan sprints, review architecture, execute QA, and sign off on release readiness.
+Maternal Mental Health Workflow using the Edinburgh Postnatal Depression Scale (EPDS), fully integrated with Wonder HMIS.
+General Public Mental Health Workflow using PHQ-2 with automatic escalation to PHQ-9 when clinically indicated, managed entirely within WEMA.
 
+Both workflows operate on the same technology platform, sharing a common offline-first architecture, multilingual patient interface, psychologist operations portal, routing engine, room management, scheduling, synchronization framework, and local data storage. Clinical screening continues uninterrupted without internet connectivity, allowing patient registration, questionnaire completion, local scoring, risk classification, room assignment, queue management, and routing decisions to occur entirely on the device. Network connectivity is only required for background synchronization and external integrations.
+
+Although the workflows share the same platform, they have different clinical ownership models.
+
+For the EPDS workflow, Wonder HMIS remains the system of record. WEMA retrieves the facility patient list from Wonder, performs the complete screening workflow locally, including patient identification, EPDS assessment, automated scoring, risk classification, patient routing, psychologist availability checks, room assignment, waiting queue management, and presentation of the screening outcome. These clinical decisions are performed entirely within WEMA and continue to function even when the facility is offline. Once the assessment is completed, WEMA stores the assessment locally, synchronizes it with the WEMA backend, and submits the completed EPDS assessment and clinical outcome to Wonder through the Wonder Integration Adapter. After successful synchronization, Wonder becomes responsible for maintaining the patient's permanent clinical record, generating high-risk alerts, and managing all subsequent clinical follow-up and community-level interventions according to the hospital's established workflows.
+
+For the General Public workflow, WEMA acts as the system of record. Patients are registered directly within WEMA, PHQ-2 and PHQ-9 assessments are completed locally, results are stored within the WEMA database, and high-risk patients are routed through WEMA's operational services. WEMA manages psychologist availability, room assignment, waiting queues, and WhatsApp alert notifications for this workflow. Appointment scheduling and reporting dashboards are deferred to MVP2. No General Public screening data is transmitted to Wonder HMIS.
+
+The platform follows a local-first architecture, ensuring every patient interaction is committed to the device before any network communication occurs. Synchronization is performed asynchronously using an outbox pattern, ensuring resilience against unstable connectivity while preventing data loss or duplicate submissions. Integration with Wonder is isolated through a dedicated adapter layer, allowing WEMA's internal architecture to remain independent of Wonder's implementation details.
+
+This document serves as the authoritative technical implementation reference for the WEMA MVP1 platform. It defines the system architecture, implementation strategy, project structure, integration patterns, offline-first design, workflow orchestration, synchronization model, deployment architecture, testing strategy, and engineering standards required by software engineers, UI/UX designers, clinical stakeholders, quality assurance teams, DevOps engineers, and project managers to successfully deliver, validate, and deploy the WEMA MVP1 platform.
 ---
 
 ## 2. Architecture Overview
 
 ### 2.1 System Responsibility Split
 
-| Responsibility | Owner |
-|---|---|
-| Patient self-screening (EPDS) | WEMA |
-| Offline scoring & risk classification | WEMA |
-| Psychologist & room assignment | WEMA |
-| Waiting queue management | WEMA |
-| Psychoeducation content delivery | WEMA |
-| Local storage & outbox sync | WEMA |
-| Push results to Wonder | WEMA → WEMA Backend → Wonder |
-| Master patient record | Wonder HMIS |
-| Community follow-up, CHP management, home visits | Wonder HMIS |
-| Existing SMS / community workflows | Wonder HMIS |
+| Responsibility                          | EPDS Workflow (Maternal Mental Health) | General Public Workflow                                    |
+| --------------------------------------- | -------------------------------------- | ---------------------------------------------------------- |
+| Patient registration / identification   | Wonder patient list (via WEMA)         | WEMA                                                       |
+| Patient self-screening                  | WEMA                                   | WEMA                                                       |
+| Offline questionnaire delivery          | WEMA                                   | WEMA                                                       |
+| Local scoring & risk classification     | WEMA                                   | WEMA                                                       |
+| Psychologist availability               | WEMA                                   | WEMA                                                       |
+| Room assignment                         | WEMA                                   | WEMA                                                       |
+| Patient routing                         | WEMA                                   | WEMA                                                       |
+| Waiting queue management                | WEMA                                   | WEMA                                                       |
+| Appointment scheduling                  | Not applicable (MVP2)                  | Not applicable (MVP2)                                                       |
+| Psychoeducation content delivery        | WEMA                                   | WEMA                                                       |
+| Local storage & offline synchronization | WEMA                                   | WEMA                                                       |
+| Push assessment results                 | WEMA → WEMA Backend → Wonder HMIS      | WEMA                                            |
+| Primary clinical record                 | Wonder HMIS                            | WEMA                                                       |
+| Clinical reporting & analytics                   | Wonder HMIS         | WEMA (MVP2)                                                       |
+| High-risk alert generation              | Wonder HMIS                            | WEMA                                                       |
+| Community follow-up                     | Wonder HMIS                            | WEMA (where applicable within the General Public workflow MVP2) |
+| Long-term patient management            | Wonder HMIS                            | WEMA                                                       |
+
+## 2.1.1 Shared Responsibilities
+
+| Responsibility                      | Owner |
+| ----------------------------------- | ----- |
+| Patient self-screening              | WEMA  |
+| Offline questionnaire delivery      | WEMA  |
+| Local scoring & risk classification | WEMA  |
+| Psychologist availability           | WEMA  |
+| Room assignment                     | WEMA  |
+| Patient routing                     | WEMA  |
+| Waiting queue management            | WEMA  |
+| Psychoeducation content delivery    | WEMA  |
+| Local storage & synchronization     | WEMA  |
+| Multilingual interface              | WEMA  |
+| Offline-first operation             | WEMA  |
+
 
 ### 2.2 High-Level Component Map
 
 ```
-┌──────────────────────────────┐        ┌───────────────────────────────┐
-│  WEMA Patient Tablet (React)  │        │   Psychologist Portal (React)  │
-│  - Service Worker (Workbox)   │        │   - Queue / availability view  │
-│  - IndexedDB (Dexie.js)       │        │   - Session start/complete     │
-│  - Local scoring engine       │        │   - Dashboard & reports        │
-│  - Local outbox               │        └───────────────┬─────────────---┘
-└───────────────┬───────────────┘                        │
-                │  HTTPS (sync when online)               │ HTTPS (JWT)
-                ▼                                         ▼
-        ┌───────────────────────────────────────────────────────┐
-        │                WEMA Backend (Node/Express)              │
-        │  - REST API            - Availability service           │
-        │  - Sync engine         - Queue service                  │
-        │  - Background workers  - Room-allocation service         │
-        │  - Wonder adapter      - Audit/logging service           │
-        └───────────────┬───────────────────────┬─────────────---┘
-                         │                       │
-                         ▼                       ▼
-              ┌───────────────────┐    ┌───────────────────────┐
-              │   PostgreSQL       │    │   Wonder HMIS API      │
-              │   (system of       │    │   (master patient      │
-              │    record for      │    │    record, CHP/SMS,    │
-              │    WEMA entities)  │    │    community follow-up)│
-              └───────────────────┘    └───────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            WEMA ACCESS LAYER                                 │
+│                                                                              │
+│  /screening/epds        /screening/public         /psychologist             │
+│  EPDS workflow          General Public workflow   Clinical operations portal │
+└───────────────┬──────────────────────┬───────────────────────┬───────────────┘
+                │                      │                       │
+                ▼                      ▼                       ▼
+┌──────────────────────────────────────────────┐   ┌────────────────────────────┐
+│        WEMA PATIENT TABLET APP               │   │  PSYCHOLOGIST PORTAL       │
+│              React + Vite                    │   │       React + Vite         │
+│                                              │   │                            │
+│ Shared capabilities                          │   │ Authentication             │
+│ • Language selection                         │   │ • JWT-based login          │
+│                                              │   │ • Role and facility context│
+│ • Text, audio support                        │   │                            │
+│ • Questionnaire presentation                 │   │ Clinical operations        │
+│ • Local scoring                              │   │ • Start/end shift          │
+│ • Local risk classification                  │   │ • Availability status      │
+│ • Local routing decision                     │   │ • Room selection/status    │
+│ • Psychologist and room lookup               │   │ • Live patient queue       │
+│ • Waiting queue                              │   │ • Assigned patients        │
+│ • Psychoeducation content                    │   │ • Start consultation       │
+│ • Session reset                              │   │ • Complete consultation    │
+│                                              │   │                            │
+│ Workflow entry routes                        │   │                            │
+│                                              │   │ Not included in MVP1       │
+│ /screening/epds                              │   │ • EPDS dashboard           │
+│ • Wonder patient identification              │   │ • EPDS reports             │
+│ • EPDS assessment                            │   │ • Analytics dashboard      │
+│ • Result destined for Wonder                 │   │                            │
+│                                              │   │ Dashboard and reporting    │
+│ /screening/public                            │   │ are deferred to MVP2.      │
+│ • WEMA patient registration                  │   └──────────────┬─────────────┘
+│ • PHQ-2                                      │                  │
+│ • PHQ-9 when triggered                       │                  │ HTTPS + JWT
+│ • Result stored in WEMA                      │                  │
+└──────────────────────┬───────────────────────┘                  │
+                       │                                          │
+                       ▼                                          │
+┌──────────────────────────────────────────────┐                  │
+│           LOCAL-FIRST DEVICE LAYER           │                  │
+│                                              │                  │
+│ IndexedDB using Dexie.js                     │                  │
+│ • Cached Wonder patient list                 │                  │
+│ • WEMA public patients                       │                  │
+│ • Screening sessions                        │                  │
+│ • Assessment answers                        │                  │
+│ • Scores and risk classifications           │                  │
+│ • Routing decisions                         │                  │
+│ • Cached psychologist availability          │                  │
+│ • Cached room status                        │                  │
+│ • Queue entries                             │                  │
+│ • Pending synchronization records           │                  │
+│ • Audit events                              │                  │
+│                                             │                  │
+│ Service Worker using Workbox                │                  │
+│ • Application-shell cache                   │                  │
+│ • Translation cache                         │                  │
+│ • Audio and video cache                     │                  │
+│ • Offline application startup               │                  │
+│                                              │                  │
+│ Local outbox                                 │                  │
+│ • Durable pending operations                │                  │
+│ • Idempotency keys                          │                  │
+│ • Retry metadata                            │                  │
+└──────────────────────┬───────────────────────┘                  │
+                       │                                          │
+                       │ HTTPS synchronization when online         │
+                       └──────────────────────┬───────────────────┘
+                                              ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     WEMA BACKEND PLATFORM                                   │
+│                       Node.js + Express                                     │
+│                                                                              │
+│ API and access control                                                       │
+│ • REST API                                                                  │
+│ • Authentication and authorization                                          │
+│ • Idempotency enforcement                                                   │
+│                                                                              │
+│ Workflow orchestration                                                       │
+│ • EPDS_WONDER workflow                                                       │
+│ • GENERAL_PUBLIC_PHQ workflow                                               │
+│ • Patient-source validation                                                  │
+│ • Assessment-tool validation                                                 │
+│ • Integration-target validation                                              │
+│ • Alert-owner validation                                                     │
+│                                                                              │
+│ Shared clinical operations                                                   │
+│ • Psychologist service                                                       │
+│ • Availability service                                                       │
+│ • Room service                                                               │
+│ • Routing service                                                            │
+│ • Assignment service                                                         │
+│ • Queue service                                                              │
+│ • Consultation service                                                       │
+│                                                                              │
+│ Offline synchronization                                                      │
+│ • Sync push and pull                                                         │
+│ • Conflict handling                                                          │
+│ • Duplicate prevention                                                       │
+│ • Failed-sync visibility                                                     │
+│                                                                              │
+│ Integration and background processing                                        │
+│ • Wonder integration adapter                                                 │
+│ • Wonder patient-list refresh worker                                         │
+│ • EPDS result push worker                                                    │
+│ • General Public WhatsApp alert worker                                       │
+│ • Retry worker                                                               │
+│ • Audit and logging service                                                  │
+└───────────────┬───────────────────────────────┬──────────────────────────────┘
+                │                               │
+                │                               │
+                ▼                               ▼
+┌──────────────────────────────────┐   ┌───────────────────────────────────────┐
+│        WEMA POSTGRESQL           │   │            WONDER HMIS API            │
+│                                  │   │                                       │
+│ Primary record for:              │   │ Master record for:                    │
+│ • General Public patients        │   │ • Maternal patient identity           │
+│ • PHQ-2 assessments              │   │                                       │
+│ • PHQ-9 assessments              │   │ • Permanent EPDS clinical record      │
+│ • General Public appointments    │   │                                       │
+│ • General Public notifications   │   │ Receives from WEMA:                   │
+│                                  │   │ • EPDS responses                      │
+│ Operational data for both:       │   │ • EPDS score                          │
+│ • Screening sessions             │   │ • Risk classification                 │
+│ • Routing decisions              │   │ • Clinical routing outcome            │
+│ • Psychologist availability      │   │ • Assessment completion status        │
+│ • Rooms                          │   │                                       │
+│ • Queue entries                  │   │ Wonder owns:                          │
+│ • Assignments                    │   │ • EPDS high-risk alert dispatch       │
+│ • Consultations                  │   │ • SMS and CHP workflows               │
+│ • Sync state                     │   │ • Home-visit workflow                 │
+│ • Integration events             │   │ • Community-level follow-up           │
+│ • Audit logs                     │   │ • Long-term EPDS reporting            │
+│                                  │   │                                       │
+│ WEMA is not the permanent EPDS   │   │ Wonder exposes:                       │
+│ clinical system of record.       │   │ • Today's patient list                │
+└──────────────────────────────────┘   │ • EPDS result-receiving endpoint      │
+                                       └───────────────────────────────────────┘
+
+
+                    GENERAL PUBLIC ALERT PATH
+
+┌─────────────────────────────┐
+│ WEMA Notification Worker    │
+│                             │
+│ • General Public only       │
+│ • High-risk policy check    │
+│ • Retry on provider failure │
+│ • Audit alert status        │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ Facility WhatsApp Group     │
+│                             │
+│ Receives high risk yello/red
+  alerts for the               │
+│ General Public workflow.    │
+└─────────────────────────────┘
 ```
 
 ### 2.3 Updated End-of-Day Flow (No CHP)
@@ -88,32 +261,46 @@ WEMA Backend pushes assessment + clinical outcome to Wonder (UPDATE_WONDER)
 Wonder HMIS initiates community follow-up (out of WEMA's scope)
 ```
 
-### 2.4 Local Jobs (Tablet)
+### 2.4 Local Jobs (Tablet Upload)
 
 ```
-SYNC_MANUAL_PATIENT
-SYNC_ASSESSMENT
-SYNC_CONSULTATION_ASSIGNMENT
-SYNC_AUDIT_EVENT
-REQUEST_WHATSAPP_ALERT
+LOCAL OUTBOX JOBS
+├── SYNC_WEMA_PATIENT
+├── SYNC_SCREENING_SESSION
+├── SYNC_ASSESSMENT
+├── SYNC_ROUTING_DECISION
+├── SYNC_QUEUE_ENTRY
+├── SYNC_ASSIGNMENT
+└── SYNC_AUDIT_EVENT
+
+
+LOCAL BACKGROUND PULL TASKS/DOWNLOADS
+├── REFRESH_WONDER_PATIENT_CACHE
+├── REFRESH_RESOURCE_SNAPSHOT
+└── REFRESH_CONTENT_MANIFEST
 ```
 
 ### 2.5 Backend Jobs
 
 ```
-UPDATE_WONDER
-SEND_WHATSAPP_ALERT
+REFRESH_WONDER_PATIENTS
+PUSH_EPDS_TO_WONDER
+SEND_GENERAL_PUBLIC_WHATSAPP_ALERT
+RETRY_FAILED_SYNCHRONIZATION
 WRITE_AUDIT_LOG
-PROCESS_NOTIFICATION
+
 ```
 
-**Explicitly removed jobs (do not implement in MVP1):**
-```
-ASSIGN_CHP
-SEND_SMS
-CREATE_CHP_FOLLOWUP
-```
-These may return as an **optional future enhancement** only if hospital leadership and the Wonder technical team jointly decide WEMA should originate CHP tasks directly instead of relying on Wonder's existing follow-up machinery. Until that decision is made and documented, no code path, database table, or UI affordance for CHP tasking should exist in WEMA.
+| Job | Purpose |
+|---|---|
+| **REFRESH_WONDER_PATIENTS** | Periodically retrieves the latest patient list from Wonder HMIS for facilities using the EPDS workflow and makes it available for offline synchronization to patient tablets. |
+| **PUSH_EPDS_TO_WONDER** | Pushes completed EPDS assessments, scores, risk classifications, and routing outcomes from WEMA to Wonder HMIS. Includes retry handling for temporary integration failures. |
+| **SEND_GENERAL_PUBLIC_WHATSAPP_ALERT** | Sends high-risk alerts to the configured Mental Health WhatsApp group for patients screened through the General Public workflow only. This job is never executed for EPDS assessments. |
+| **RETRY_FAILED_SYNCHRONIZATION** | Automatically retries failed synchronization jobs, including Wonder integrations and other pending backend operations, ensuring reliable delivery after temporary network or service failures. |
+| **WRITE_AUDIT_LOG** | Persists clinically significant system events, integration activities, authentication events, synchronization outcomes, and operational actions for compliance and troubleshooting. |
+
+---
+
 
 ### 2.6 Full EPDS Data Flow (Step-by-Step)
 
@@ -132,8 +319,38 @@ These may return as an **optional future enhancement** only if hospital leadersh
 13. High-risk (Red, and deprioritized Yellow) patients are routed into the psychologist workflow — this routing decision itself is made **locally**, without waiting on the backend.
 14. Psychologist availability and room status are checked against the locally cached resource state.
 15. The patient is allocated a room or placed in the local wait queue (Red ahead of Yellow).
-16. A WhatsApp red-alert is dispatched (queued locally if offline, sent once connectivity returns).
-17. The psychologist starts and completes the session via the Psychologist Portal; session outcome is logged.
+16. The psychologist starts and completes the session via the Psychologist Portal; session outcome is logged.
+
+### 2.6.1 Full PHQ-2 / PHQ-9 Data Flow (Step-by-Step)
+
+1. The application starts on the facility tablet.
+2. The user selects a language (English / Kiswahili / Luo).
+3. The patient is informed about the purpose of the screening and provides informed consent.
+4. Since this workflow is not integrated with Wonder HMIS, the patient is registered directly in WEMA by entering the required demographic information (e.g., full name, phone number, national ID/passport number, age, and residence).
+5. A new screening session is created locally on the tablet.
+6. The patient completes the PHQ-2 questionnaire.
+7. Answers are saved locally in real time as each response is entered.
+8. The PHQ-2 score is calculated entirely on the tablet without requiring an internet connection.
+9. The application evaluates the PHQ-2 score.
+10. If the PHQ-2 score is below the configured threshold, the screening is completed, the result and interpretation are displayed to the patient, and the assessment is queued for synchronization with the WEMA backend.
+11. If the PHQ-2 score meets or exceeds the configured threshold, the patient automatically proceeds to the PHQ-9 assessment without requiring a new registration or session.
+12. The patient completes the PHQ-9 questionnaire.
+13. PHQ-9 responses are continuously saved locally as they are entered.
+14. The PHQ-9 score is calculated locally using the embedded scoring engine.
+15. The patient's depression severity and clinical risk level are classified locally.
+16. The assessment result and an appropriate clinical interpretation are displayed to the patient.
+17. Based on the locally calculated risk level, the routing engine determines the next clinical action without waiting for backend communication.
+18. The tablet checks the locally cached psychologist availability, room status, and waiting queue.
+19. If an appropriate psychologist and consultation room are immediately available, the patient is assigned to the next available psychologist and directed to the allocated consultation room.
+20. If all psychologists are currently engaged, the patient is placed into the local waiting queue according to clinical priority and estimated waiting time.
+21. While waiting, the patient may be presented with approved psychoeducation content available on the tablet.
+22. The completed assessment, patient registration, routing decision, queue information, and assignment are added to the local outbox for synchronization.
+23. When network connectivity becomes available, all pending records are synchronized to the WEMA backend.
+24. The backend validates the synchronized data, stores the patient and assessment as the permanent clinical record within WEMA, updates psychologist assignments and queue information, and records the complete audit trail.
+25. If the assessment meets the configured high-risk criteria, the backend generates and sends a WhatsApp alert to the configured Mental Health response group.
+26. The assigned psychologist accesses the patient's information through the Psychologist Portal, starts the consultation session, documents the consultation outcome, and marks the consultation as complete.
+27. The consultation outcome is stored in WEMA as part of the patient's longitudinal mental health record.
+28. Future counselling or review needs are recorded in the consultation outcome; appointment scheduling is deferred to MVP2.
 
 ---
 
