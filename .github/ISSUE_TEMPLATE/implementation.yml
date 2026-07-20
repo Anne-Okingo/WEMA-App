@@ -1,0 +1,115 @@
+name: Implementation Issue
+description: Define and track technical implementation work
+title: "[Implementation]: "
+labels:
+  - implementation
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: Explain why this work is needed and the problem it solves.
+      placeholder: Describe the current situation, problem, and impact.
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: Clearly state the expected outcome.
+      placeholder: What should be achieved when this issue is completed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Define what is included and explicitly excluded.
+      value: |
+        ### Included
+
+        -
+
+        ### Excluded
+
+        -
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-tasks
+    attributes:
+      label: Technical Tasks
+      description: List the high-level implementation steps.
+      value: |
+        - [ ]
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: List measurable conditions required to close the issue.
+      value: |
+        - [ ]
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List prerequisite issues, milestones, or external dependencies.
+      placeholder: Use "None" when there are no dependencies.
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing-requirements
+    attributes:
+      label: Testing Requirements
+      description: Define the tests and validation required.
+      value: |
+        ### Unit tests
+
+        - [ ]
+
+        ### Integration tests
+
+        - [ ]
+
+        ### Clinical validation
+
+        - [ ] Not required
+        - [ ] Required
+
+        ### End-to-end tests
+
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: Definition of Done
+      description: Confirm all conditions required for completion.
+      value: |
+        - [ ] Technical tasks are complete.
+        - [ ] Acceptance criteria are satisfied.
+        - [ ] Required tests pass.
+        - [ ] Clinical validation is complete, where applicable.
+        - [ ] Documentation is updated.
+        - [ ] Code review is complete.
+        - [ ] No blocking defects remain.
+        - [ ] Changes are merged or deployed.
+        - [ ] Stakeholder approval has been received.
+    validations:
+      required: true
