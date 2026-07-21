@@ -1,15 +1,21 @@
 {
-  "name": "wema-app",
-  "version": "1.0.0",
-  "description": "WEMA is an offline-first maternal mental health screening app for hospital waiting rooms. Patients complete an EPDS assessment on a tablet, get instant results, and are automatically routed to care.",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "name": "wema",
+  "private": true,
+  "packageManager": "pnpm@11.15.1",
+  "description": "WEMA — offline-first maternal mental health screening platform for hospital waiting rooms.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm -r --parallel run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "clean": "pnpm -r run clean"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "typescript": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": ">=11.0.0"
+  }
 }
