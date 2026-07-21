@@ -1,2 +1,27 @@
-# Windows Zone Identifier files
-*\:Zone.Identifier
+# ---- Dependencies ----
+node_modules/
+.pnpm-store/
+
+# ---- Build output ----
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# ---- Environment / secrets (never commit) ----
+.env
+.env.local
+.env.*.local
+
+# ---- Test coverage ----
+coverage/
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Editor files ----
+.idea/
+
+# ---- Windows Zone Identifier files ----
+*:Zone.Identifier

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // Language and environment
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+
+    // Strictness
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Interop and compatibility
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+
+    // Output — individual apps/packages control this
+    "noEmit": true,
+
+    // Paths — base only; individual apps extend with their own aliases
+    "paths": {}
+  }
+}
