@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",
-    "test": "pnpm --filter \"./apps/frontend/*\" run test",
+    "test": "pnpm -r run test",
+    "test:frontend": "pnpm --filter \"./apps/frontend/*\" run test",
     "lint": "pnpm --filter \"./apps/frontend/*\" run lint",
     "typecheck": "pnpm --filter \"./apps/frontend/*\" run typecheck",
     "format:check": "pnpm --filter \"./apps/frontend/*\" run format:check",
