@@ -1,0 +1,31 @@
+// WEMA — Prisma Schema
+//
+// This file defines the database provider and connection.
+// Clinical and operational models will be added in subsequent issues.
+//
+// Commands (run from packages/database):
+//   pnpm db:generate          — regenerate Prisma Client after schema changes
+//   pnpm db:migrate:dev       — create and apply a new development migration
+//   pnpm db:migrate:deploy    — apply pending migrations (CI / production)
+//   pnpm db:migrate:status    — show applied and pending migrations
+//   pnpm db:studio            — open Prisma Studio
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Minimal model that anchors the initial migration and verifies the
+// Prisma setup end-to-end. Will be replaced by operational models.
+model SchemaVersion {
+  id        Int      @id @default(autoincrement())
+  version   String   @unique
+  appliedAt DateTime @default(now())
+
+  @@map("_schema_version")
+}
