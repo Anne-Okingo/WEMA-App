@@ -1,2 +1,21 @@
-# Windows Zone Identifier files
-*\:Zone.Identifier
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS artifacts
+.DS_Store
+
+# Logs
+*.log
+
+# Windows
+*:Zone.Identifier
+
+# Kilo
+.kilo/

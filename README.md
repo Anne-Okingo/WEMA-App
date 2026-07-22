@@ -224,42 +224,29 @@ See the [Detailed Sequential Implementation Plan](docs/architecture/WEMA_MVP1_De
 
 ## Getting started
 
-The application scaffolding and final commands are being established during Phase 1. This section must be updated as soon as those changes are merged.
-
 ### Prerequisites
 
-The intended local prerequisites are:
+- Node.js 20+
+- npm 9+
 
-- Git;
-- the Node.js version declared by the repository once pinned;
-- npm;
-- Docker Engine with Docker Compose for backend services; and
-- access to approved sandbox credentials when integration work begins.
+Frontend applications run directly on the developer machine during active development for fast hot-module replacement.
 
-Frontend applications should run directly on the developer machine during active development for fast hot-module replacement. PostgreSQL, the API, and the Worker are intended to run through Docker Compose once the infrastructure issue is complete.
-
-### Planned setup flow
+### Setup
 
 ```bash
 git clone <repository-url>
 cd WEMA-App
 npm install
-cp .env.example .env
-docker compose up
 ```
 
-Planned frontend development commands will follow the workspace scripts defined during scaffolding, for example:
+### Running the apps
 
 ```bash
-npm run dev --workspace=<patient-app-workspace>
-npm run dev --workspace=<psychologist-portal-workspace>
+npm run dev --workspace=@wema/patient-app
+npm run dev --workspace=@wema/psychologist-portal
 ```
 
-> Do not treat placeholder workspace names as final commands. Use the scripts in the root `package.json` after Phase 1 scaffolding is merged.
-
-### Planned verification
-
-The completed Phase 1 setup should provide root commands for:
+### Verification
 
 ```bash
 npm run lint
@@ -268,8 +255,6 @@ npm run typecheck
 npm test
 npm run build
 ```
-
-If the actual scripts differ, this README and the root `package.json` must be updated in the same pull request.
 
 ## Configuration and secrets
 
