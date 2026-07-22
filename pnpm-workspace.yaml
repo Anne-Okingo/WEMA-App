@@ -1,4 +1,7 @@
 packages:
   - "apps/frontend/*"
   - "apps/backend/*"
+  - "apps/*/*"
   - "packages/*"
+allowBuilds:
+  esbuild: true
