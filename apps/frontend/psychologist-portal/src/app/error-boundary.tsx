@@ -15,7 +15,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(): { hasError: boolean } {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   handleRetry = () => {
