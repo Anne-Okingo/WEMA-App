@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ hasError: false });
   };
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div style={{ padding: '2rem', textAlign: 'center' }}>
