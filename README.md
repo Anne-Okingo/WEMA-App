@@ -242,9 +242,15 @@ npm install
 ### Running the apps
 
 ```bash
+# Run both apps with combined output from the root
+npm run dev
+
+# Or run a single app by workspace
 npm run dev --workspace=@wema/patient-app
 npm run dev --workspace=@wema/psychologist-portal
 ```
+
+Patient App runs on **http://localhost:5173** and Psychologist Portal runs on **http://localhost:5174**.
 
 ### Verification
 
