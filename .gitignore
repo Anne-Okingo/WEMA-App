@@ -1,21 +1,27 @@
-# Dependencies
+# ---- Dependencies ----
 node_modules/
+.pnpm-store/
+
+# ---- Build output ----
 dist/
 build/
+.cache/
+*.tsbuildinfo
 
-# Environment
+# ---- Environment / secrets (never commit) ----
 .env
 .env.local
 .env.*.local
 
-# OS artifacts
+# ---- Test coverage ----
+coverage/
+
+# ---- OS files ----
 .DS_Store
+Thumbs.db
 
-# Logs
-*.log
+# ---- Editor files ----
+.idea/
 
-# Windows
+# ---- Windows Zone Identifier files ----
 *:Zone.Identifier
-
-# Kilo
-.kilo/
