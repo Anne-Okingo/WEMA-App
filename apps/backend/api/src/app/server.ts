@@ -1,11 +1,12 @@
-import { config } from '../config/environment.js';
+import { loadConfig } from '../config/environment.js';
 import { createApp } from './app.js';
 import { registerShutdownHandlers } from './shutdown.js';
 import { startServer } from './startup.js';
 
+const config = loadConfig();
 const app = createApp();
 
-startServer(app, config.port)
+startServer(app, config.api.port)
   .then((server) => {
     registerShutdownHandlers(server);
   })
