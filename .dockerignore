@@ -1,0 +1,13 @@
+node_modules
+**/node_modules
+dist
+**/dist
+build
+**/.cache
+*.tsbuildinfo
+packages/database/generated
+.env
+.env.local
+.env.*.local
+docker-compose.override.yml
+coverage
