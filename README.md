@@ -227,7 +227,7 @@ See the [Detailed Sequential Implementation Plan](docs/architecture/WEMA_MVP1_De
 ### Prerequisites
 
 - Node.js 20+
-- npm 9+
+- pnpm 11.15.1
 
 Frontend applications run directly on the developer machine during active development for fast hot-module replacement.
 
@@ -236,18 +236,18 @@ Frontend applications run directly on the developer machine during active develo
 ```bash
 git clone <repository-url>
 cd WEMA-App
-npm install
+pnpm install
 ```
 
 ### Running the apps
 
 ```bash
 # Run both apps with combined output from the root
-npm run dev
+pnpm run dev
 
 # Or run a single app by workspace
-npm run dev --workspace=@wema/patient-app
-npm run dev --workspace=@wema/psychologist-portal
+pnpm run dev --filter @wema/patient-app
+pnpm run dev --filter @wema/psychologist-portal
 ```
 
 Patient App runs on **http://localhost:5173** and Psychologist Portal runs on **http://localhost:5174**.
@@ -255,11 +255,11 @@ Patient App runs on **http://localhost:5173** and Psychologist Portal runs on **
 ### Verification
 
 ```bash
-npm run lint
-npm run format:check
-npm run typecheck
-npm test
-npm run build
+pnpm run lint
+pnpm run format:check
+pnpm run typecheck
+pnpm test
+pnpm run build
 ```
 
 ## Configuration and secrets
