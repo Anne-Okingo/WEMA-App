@@ -9,6 +9,6 @@ This directory contains all independently runnable WEMA applications.
 | API | `apps/backend/api/` | Backend REST API used by the frontend applications |
 | Worker | `apps/backend/worker/` | Background job processor for asynchronous work |
 
-The frontend applications run directly on the developer machine during active development.
+The frontend applications run directly on the developer machine during active development using pnpm workspaces.
 
-The backend API and Worker are separate applications and will run as separate services. Application directories should be added when their respective scaffold issues are implemented.
+The backend API and Worker are separate applications and will run as separate services. Their directories should be added when their respective scaffold issues are implemented.
