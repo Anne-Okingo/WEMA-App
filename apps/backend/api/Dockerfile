@@ -20,6 +20,11 @@ COPY tsconfig.base.json ./
 COPY packages/database/ ./packages/database/
 COPY apps/backend/api/ ./apps/backend/api/
 
+# NOTE: tsconfig.base.json sets "incremental": true, which makes tsc write a
+# .tsbuildinfo cache file locally. COPY above brings that file into the image,
+# so tsc treats the build as up-to-date and skips emitting dist/ entirely —
+# even though dist/ does not exist in the container. Both tsconfig.build.json
+# files override "incremental": false to force a full emit on every Docker build.
 RUN pnpm --filter @wema/database db:generate
 RUN pnpm --filter @wema/database build
 RUN pnpm --filter @wema/api build
