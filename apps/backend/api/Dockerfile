@@ -10,7 +10,10 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/backend/api/package.json ./apps/backend/api/
 COPY packages/database/package.json ./packages/database/
 
-RUN pnpm install --frozen-lockfile
+RUN pnpm config set fetch-timeout 600000 && \
+    pnpm config set fetch-retries 5 && \
+    pnpm config set network-concurrency 8 && \
+    pnpm install --frozen-lockfile
 
 # ---- Stage 2: generate Prisma client, compile both packages ----
 FROM deps AS build
