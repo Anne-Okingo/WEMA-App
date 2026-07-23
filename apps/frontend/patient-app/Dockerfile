@@ -9,7 +9,8 @@ RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/frontend/patient-app/package.json ./apps/frontend/patient-app/
 
-RUN pnpm install --frozen-lockfile --filter @wema/patient-app
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @wema/patient-app
 
 # Source is mounted at runtime via a volume — do not COPY here
 WORKDIR /app/apps/frontend/patient-app

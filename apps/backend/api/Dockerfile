@@ -10,7 +10,8 @@ COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/backend/api/package.json ./apps/backend/api/
 COPY packages/database/package.json ./packages/database/
 
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # ---- Stage 2: generate Prisma client, compile both packages ----
 FROM deps AS build
@@ -34,6 +35,7 @@ RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/backend/api/node_modules ./apps/backend/api/node_modules
+COPY --from=deps /app/packages/database/node_modules ./packages/database/node_modules
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/backend/api/package.json ./apps/backend/api/
 COPY packages/database/package.json ./packages/database/

@@ -29,6 +29,12 @@ const environmentSchema = z.object({
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('15m'),
 
+  // CORS
+  CORS_ORIGINS: z
+    .string()
+    .default('http://localhost:5173,http://localhost:5174')
+    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
+
   // Background jobs
   JOB_QUEUE_SCHEMA: z.string().default('wema_jobs'),
 
@@ -128,6 +134,9 @@ function loadConfig() {
     auth: {
       jwtSecret: env.JWT_SECRET,
       jwtExpiresIn: env.JWT_EXPIRES_IN,
+    },
+    cors: {
+      origins: env.CORS_ORIGINS,
     },
     jobs: {
       queueSchema: env.JOB_QUEUE_SCHEMA,

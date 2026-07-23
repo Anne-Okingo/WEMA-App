@@ -9,7 +9,8 @@ RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/frontend/psychologist-portal/package.json ./apps/frontend/psychologist-portal/
 
-RUN pnpm install --frozen-lockfile --filter @wema/psychologist-portal
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @wema/psychologist-portal
 
 WORKDIR /app/apps/frontend/psychologist-portal
 EXPOSE 5174
