@@ -9,7 +9,10 @@ RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/frontend/psychologist-portal/package.json ./apps/frontend/psychologist-portal/
 
-RUN pnpm install --frozen-lockfile --filter @wema/psychologist-portal
+RUN pnpm config set fetch-timeout 600000 && \
+    pnpm config set fetch-retries 5 && \
+    pnpm config set network-concurrency 8 && \
+    pnpm install --frozen-lockfile --filter @wema/psychologist-portal
 
 WORKDIR /app/apps/frontend/psychologist-portal
 EXPOSE 5174
