@@ -111,6 +111,25 @@ pnpm --filter @wema/database db:studio
 
 ---
 
+## Build notes
+
+### TypeScript incremental compilation and Docker
+
+`tsconfig.base.json` enables `"incremental": true`, which makes `tsc` write a
+`.tsbuildinfo` cache file alongside the source. When Docker copies a package
+directory (e.g. `COPY packages/database/ ./packages/database/`), that cache
+file comes along for the ride. `tsc` then considers the build up-to-date and
+**skips emitting `dist/`** — even though `dist/` does not exist in the
+container — and exits 0, causing the next package that depends on `dist/` to
+fail with `Cannot find module`.
+
+Both `packages/database/tsconfig.build.json` and
+`apps/backend/api/tsconfig.build.json` override `"incremental": false` to
+force a full emit on every Docker build. The `incremental` flag remains enabled
+in the base config for fast local rebuilds via `typecheck` and `dev`.
+
+---
+
 ## Environment variables
 
 Copy `.env.example` to `.env` and adjust as needed. Never commit `.env`.
