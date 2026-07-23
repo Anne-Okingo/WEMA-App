@@ -80,11 +80,38 @@ pnpm --filter @wema/api typecheck
 pnpm --filter @wema/api test
 ```
 
-### Status route
+### API endpoints
 
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/status` | Liveness check — always `200 { "status": "ok" }` while the process is up |
+| `GET` | `/api/health` | Shallow health check — same as status, no dependency checks |
+| `GET` | `/api/health/deep` | Deep health check — verifies PostgreSQL connectivity and job queue schema |
+
+**Deep health response (healthy):**
+```json
+{ "status": "ok", "checks": { "postgres": { "ok": true }, "jobQueue": { "ok": true } } }
 ```
-GET /api/status  →  200 { "status": "ok" }
+
+**Deep health response (degraded):**
+```json
+{ "status": "degraded", "checks": { "postgres": { "ok": false, "error": "connection refused" }, "jobQueue": { "ok": true } } }
 ```
+Returns `503` when any check fails.
+
+### Middleware
+
+Every request is processed through the following stack in order:
+
+| Middleware | Behaviour |
+|---|---|
+| `helmet` | Sets secure HTTP response headers |
+| `cors` | Allows `localhost:5173` and `localhost:5174` by default |
+| `requestId` | Stamps `x-request-id` and `x-correlation-id` on every request/response; generates a UUID v4 if the caller doesn't provide one |
+| `logging` | Structured JSON logs via pino; pino-pretty in dev. Redacts `authorization`, `cookie`, `password`, `token`, `accessToken`, `refreshToken`, `answers`, `patientId`, and `nationalId` from all log output |
+| `express.json` | Parses JSON bodies up to 100 kb |
+
+Unmatched routes return `404 { "error": "Not Found" }`. Thrown `AppError` instances return their configured status code and optional machine-readable `code`. All other errors return `500 { "error": "Internal Server Error" }` (with a `detail` field in non-production environments).
 
 ---
 
