@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Stage 1: install deps + build ----
-FROM node:24-alpine AS build
+FROM node:24-alpine AS deps
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
