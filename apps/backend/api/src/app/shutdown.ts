@@ -1,5 +1,6 @@
 import { disconnectDatabase } from '@wema/database';
 import { type Server } from 'node:http';
+import { logger } from '../shared/logger.js';
 
 export function registerShutdownHandlers(server: Server): void {
   const shutdown = (): void => {
@@ -7,13 +8,14 @@ export function registerShutdownHandlers(server: Server): void {
       disconnectDatabase()
         .then(() => {
           if (err) {
-            console.error('Error during shutdown:', err);
+            logger.error({ err }, 'Error during shutdown');
             process.exit(1);
           }
+          logger.info('Server shut down gracefully');
           process.exit(0);
         })
         .catch((disconnectErr: unknown) => {
-          console.error('Error disconnecting database:', disconnectErr);
+          logger.error({ err: disconnectErr }, 'Error disconnecting database');
           process.exit(1);
         });
     });

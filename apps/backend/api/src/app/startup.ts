@@ -1,6 +1,7 @@
 import { connectDatabase } from '@wema/database';
 import { type Express } from 'express';
 import { type Server } from 'node:http';
+import { logger } from '../shared/logger.js';
 
 export async function startServer(app: Express, port: number): Promise<Server> {
   await connectDatabase();
@@ -8,7 +9,7 @@ export async function startServer(app: Express, port: number): Promise<Server> {
   return new Promise((resolve, reject) => {
     const server = app
       .listen(port, () => {
-        console.log(`API listening on port ${port.toString()}`);
+        logger.info({ port }, 'API listening');
         resolve(server);
       })
       .on('error', reject);
