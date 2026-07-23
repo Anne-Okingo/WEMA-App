@@ -9,7 +9,10 @@ RUN corepack enable && corepack prepare pnpm@11.15.1 --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/frontend/patient-app/package.json ./apps/frontend/patient-app/
 
-RUN pnpm install --frozen-lockfile --filter @wema/patient-app
+RUN pnpm config set fetch-timeout 600000 && \
+    pnpm config set fetch-retries 5 && \
+    pnpm config set network-concurrency 8 && \
+    pnpm install --frozen-lockfile --filter @wema/patient-app
 
 # Source is mounted at runtime via a volume — do not COPY here
 WORKDIR /app/apps/frontend/patient-app
