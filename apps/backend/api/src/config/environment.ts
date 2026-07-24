@@ -33,7 +33,12 @@ const environmentSchema = z.object({
   CORS_ORIGINS: z
     .string()
     .default('http://localhost:5173,http://localhost:5174')
-    .transform((v) => v.split(',').map((s) => s.trim()).filter(Boolean)),
+    .transform((v) =>
+      v
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    ),
 
   // Background jobs
   JOB_QUEUE_SCHEMA: z.string().default('wema_jobs'),
@@ -72,7 +77,7 @@ const refinedSchema = environmentSchema
       message:
         'WONDER_BASE_URL, WONDER_CLIENT_ID, and WONDER_CLIENT_SECRET are required when WONDER_ENABLED=true',
       path: ['WONDER_BASE_URL'],
-    },
+    }
   )
   .refine(
     (env) =>
@@ -84,7 +89,7 @@ const refinedSchema = environmentSchema
       message:
         'WHATSAPP_API_URL, WHATSAPP_ACCESS_TOKEN, and WHATSAPP_DESTINATION are required when WHATSAPP_ENABLED=true',
       path: ['WHATSAPP_API_URL'],
-    },
+    }
   );
 
 // ---------------------------------------------------------------------------
