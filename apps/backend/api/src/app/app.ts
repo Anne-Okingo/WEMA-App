@@ -15,7 +15,7 @@ export function createApp(config?: Pick<Config, 'cors' | 'jobs'>): express.Expre
     cors({
       origin: config?.cors.origins ?? ['http://localhost:5173', 'http://localhost:5174'],
       credentials: true,
-    }),
+    })
   );
   app.use(requestIdMiddleware);
   app.use(loggingMiddleware);
