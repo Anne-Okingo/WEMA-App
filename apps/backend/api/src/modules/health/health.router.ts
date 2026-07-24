@@ -14,7 +14,7 @@ async function checkJobQueue(schema: string): Promise<{ ok: boolean; error?: str
   try {
     await getPrismaClient().$queryRawUnsafe(
       `SELECT 1 FROM information_schema.schemata WHERE schema_name = $1`,
-      schema,
+      schema
     );
     return { ok: true };
   } catch (err) {

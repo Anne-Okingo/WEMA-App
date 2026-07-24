@@ -1,6 +1,7 @@
 {
   "name": "wema",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@11.15.1",
   "description": "WEMA — an offline-first mental health screening and care-routing platform.",
   "scripts": {
@@ -8,6 +9,13 @@
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "test:frontend": "pnpm --filter \"./apps/frontend/*\" run test",
+    "backend:lint": "eslint 'apps/backend/**/*.ts' 'packages/**/*.ts'",
+    "backend:format:check": "prettier --check 'apps/backend/**/*.ts' 'packages/**/*.ts'",
+    "backend:format:write": "prettier --write 'apps/backend/**/*.ts' 'packages/**/*.ts'",
+    "backend:typecheck": "pnpm --filter @wema/api --filter @wema/worker --filter @wema/database run typecheck",
+    "backend:test": "pnpm --filter @wema/api --filter @wema/worker --filter @wema/database run test",
+    "backend:test:coverage": "pnpm --filter @wema/api --filter @wema/worker run test -- --coverage",
+    "backend:build": "pnpm --filter @wema/database --filter @wema/api --filter @wema/worker run build",
     "lint": "pnpm --filter \"./apps/frontend/*\" run lint",
     "typecheck": "pnpm --filter \"./apps/frontend/*\" run typecheck",
     "format:check": "pnpm --filter \"./apps/frontend/*\" run format:check",

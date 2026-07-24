@@ -34,9 +34,7 @@ describeWithDb('database integration', () => {
 
   it('migration created the _schema_version table', async () => {
     const client = getPrismaClient();
-    const result = await client.$queryRaw<
-      [{ exists: boolean }]
-    >`SELECT EXISTS (
+    const result = await client.$queryRaw<[{ exists: boolean }]>`SELECT EXISTS (
         SELECT 1 FROM information_schema.tables
         WHERE table_name = '_schema_version'
       ) AS exists`;
