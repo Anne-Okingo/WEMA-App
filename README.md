@@ -40,6 +40,48 @@ docker compose down -v           # also remove the postgres volume (resets datab
 
 ---
 
+## Backend quality checks
+
+Run these from the repo root before opening a pull request.
+
+```bash
+pnpm backend:lint            # ESLint — all backend + packages TypeScript
+pnpm backend:format:check    # Prettier — check formatting
+pnpm backend:typecheck       # tsc --noEmit for api, worker, and database
+pnpm backend:test            # Vitest — all backend + packages tests
+pnpm backend:build           # tsc emit for database → api → worker
+```
+
+To auto-fix formatting:
+
+```bash
+pnpm backend:format:write
+```
+
+To generate a coverage report:
+
+```bash
+pnpm backend:test:coverage   # outputs text summary + lcov to coverage/
+```
+
+---
+
+## Test structure
+
+```
+apps/backend/api/tests/
+  unit/          # pure logic, no I/O
+  integration/   # Express app + supertest, dependencies mocked
+  api/           # full HTTP contract tests against a running server
+  contract/      # consumer-driven contract tests
+apps/backend/worker/tests/
+  unit/
+  integration/
+  contract/
+```
+
+---
+
 ## Backend API — local development (without Docker)
 
 ### Setup
