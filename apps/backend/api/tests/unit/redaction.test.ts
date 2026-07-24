@@ -22,7 +22,10 @@ function makeLogger() {
       cb();
     },
   });
-  const log = pino({ level: 'info', redact: { paths: REDACTED_PATHS, censor: '[REDACTED]' } }, dest);
+  const log = pino(
+    { level: 'info', redact: { paths: REDACTED_PATHS, censor: '[REDACTED]' } },
+    dest
+  );
   return { log, lines };
 }
 
