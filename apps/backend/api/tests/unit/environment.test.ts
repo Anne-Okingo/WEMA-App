@@ -20,7 +20,14 @@ describe('environmentSchema', () => {
   });
 
   it('applies defaults for optional fields', () => {
-    const { NODE_ENV: _, API_PORT: __, LOG_LEVEL: ___, JWT_EXPIRES_IN: ____, JOB_QUEUE_SCHEMA: _____, ...minimal } = VALID_BASE;
+    const {
+      NODE_ENV: _a,
+      API_PORT: _b,
+      LOG_LEVEL: _c,
+      JWT_EXPIRES_IN: _d,
+      JOB_QUEUE_SCHEMA: _e,
+      ...minimal
+    } = VALID_BASE;
     const result = environmentSchema.safeParse(minimal);
     expect(result.success).toBe(true);
     if (!result.success) return;
