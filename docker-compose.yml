@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: wema
+      POSTGRES_PASSWORD: wema
+      POSTGRES_DB: wema_dev
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wema -d wema_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/backend/api/Dockerfile
+      target: build
+    working_dir: /app/packages/database
+    command: sh -c "pnpm db:migrate:deploy"
+    environment:
+      DATABASE_URL: postgresql://wema:wema@postgres:5432/wema_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/backend/api/Dockerfile
+      target: production
+    ports:
+      - "${HOST_API_PORT:-3001}:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://wema:wema@postgres:5432/wema_dev
+      API_PORT: "3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  patient-app:
+    build:
+      context: .
+      dockerfile: apps/frontend/patient-app/Dockerfile
+      target: dev
+    ports:
+      - "${PATIENT_APP_PORT:-5173}:5173"
+    volumes:
+      - ./apps/frontend/patient-app:/app/apps/frontend/patient-app
+      - /app/apps/frontend/patient-app/node_modules
+      - ./tsconfig.frontend.json:/app/tsconfig.frontend.json:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+    restart: unless-stopped
+
+  psychologist-portal:
+    build:
+      context: .
+      dockerfile: apps/frontend/psychologist-portal/Dockerfile
+      target: dev
+    ports:
+      - "${PSYCHOLOGIST_PORTAL_PORT:-5174}:5174"
+    volumes:
+      - ./apps/frontend/psychologist-portal:/app/apps/frontend/psychologist-portal
+      - /app/apps/frontend/psychologist-portal/node_modules
+      - ./tsconfig.frontend.json:/app/tsconfig.frontend.json:ro
+      - ./tsconfig.base.json:/app/tsconfig.base.json:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

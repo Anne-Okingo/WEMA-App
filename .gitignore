@@ -1,2 +1,33 @@
-# Windows Zone Identifier files
-*\:Zone.Identifier
+# ---- Dependencies ----
+node_modules/
+.pnpm-store/
+
+# ---- Build output ----
+dist/
+build/
+.cache/
+*.tsbuildinfo
+
+# ---- Prisma generated client ----
+packages/database/generated/
+
+# ---- Environment / secrets (never commit) ----
+.env
+.env.local
+.env.*.local
+docker-compose.override.yml
+
+# ---- Test coverage ----
+coverage/
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Editor files ----
+.idea/
+
+# ---- Windows Zone Identifier files ----
+*:Zone.Identifier
+
+.kilo
